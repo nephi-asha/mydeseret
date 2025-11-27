@@ -1,0 +1,47 @@
+name: Deploy to AWS
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Set up JDK 25
+      uses: actions/setup-java@v4
+      with:
+        java-version: '25'
+        distribution: 'temurin'
+        cache: maven
+
+    - name: Build with Maven
+      run: mvn clean package -DskipTests
+
+    - name: Configure SSH
+      run: |
+        mkdir -p ~/.ssh/
+        echo "${{ secrets.EC2_KEY }}" > ~/.ssh/deploy_key.pem
+        chmod 600 ~/.ssh/deploy_key.pem
+        cat >>~/.ssh/config <<END
+        Host ec2
+          HostName ${{ secrets.EC2_HOST }}
+          User ${{ secrets.EC2_USER }}
+          IdentityFile ~/.ssh/deploy_key.pem
+          StrictHostKeyChecking no
+        END
+
+    - name: Copy Files to Server
+      run: |
+        scp target/mydeseret-0.0.1-SNAPSHOT.jar ec2:/home/ubuntu/app.jar
+        scp Dockerfile ec2:/home/ubuntu/Dockerfile
+        scp docker-compose.yml ec2:/home/ubuntu/docker-compose.yml
+
+    # 6. Restart Application on EC2
+    - name: Restart Server
+      run: |
+        ssh ec2 'export JWT_SECRET=${{ secrets.JWT_SECRET }} && docker compose up -d --build'
