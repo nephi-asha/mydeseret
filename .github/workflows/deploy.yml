@@ -41,7 +41,6 @@ jobs:
         scp Dockerfile ec2:/home/ubuntu/Dockerfile
         scp docker-compose.yml ec2:/home/ubuntu/docker-compose.yml
 
-    # 6. Restart Application on EC2
     - name: Restart Server
       run: |
         ssh ec2 'export JWT_SECRET=${{ secrets.JWT_SECRET }} && docker compose up -d --build'
