@@ -1,0 +1,49 @@
+package com.mydeseret.mydeseret.model;
+
+import jakarta.persistence.*;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+
+@Entity
+@Table(name = "customers")
+public class Customer {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "customer_id")
+    private Long id;
+
+    @Column(nullable = false)
+    private String name;
+
+    private String email;
+    private String phone;
+    private String address;
+
+    // FINANCIALS
+    @Column(name = "credit_limit")
+    private BigDecimal creditLimit = new BigDecimal("1000.00"); // Default limit
+
+    @Column(name = "current_debt")
+    private BigDecimal currentDebt = BigDecimal.ZERO; // How much they owe us
+
+    @Column(name = "created_at")
+    private LocalDate createdAt = LocalDate.now();
+
+    // Getters and Setters
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
+    public String getPhone() { return phone; }
+    public void setPhone(String phone) { this.phone = phone; }
+    public String getAddress() { return address; }
+    public void setAddress(String address) { this.address = address; }
+    public BigDecimal getCreditLimit() { return creditLimit; }
+    public void setCreditLimit(BigDecimal creditLimit) { this.creditLimit = creditLimit; }
+    public BigDecimal getCurrentDebt() { return currentDebt; }
+    public void setCurrentDebt(BigDecimal currentDebt) { this.currentDebt = currentDebt; }
+    public LocalDate getCreatedAt() { return createdAt; }
+    public void setCreatedAt(LocalDate createdAt) { this.createdAt = createdAt; }
+}
