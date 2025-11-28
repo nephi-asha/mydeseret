@@ -108,14 +108,16 @@ We implemented a **Variance Logic**:
   * **Endpoint:** `POST /api/v1/items`
   * **Payload:**
     ```json
-    {
-      "name": "White Flour",
-      "sku": "RAW-FLR-001",
-      "unit_of_measure": "KG",
-      "cost_price": 1.50,
-      "reorderPoint": 50,
-      "category_id": 1
-    }
+     {
+       "name": "White Flour",
+       "sku": "RAW-FLR-001",
+       "description": "test case",
+       "reorderPoint": 10,
+       "categoryId": 1,
+       "unitOfMeasure": "KG",
+       "sellingPrice": 150,
+       "costPrice": 80
+     }
     ```
 
 ### 5\. Define Items (Finished Goods)
