@@ -27,4 +27,24 @@ public class SupplierService {
         return supplierRepository.findAll(pageable)
                 .map(supplierMapper::toResponseDto);
     }
+
+    @Transactional
+    public SupplierResponseDto updateSupplier(Long id, SupplierRequestDto request) {
+        Supplier supplier = supplierRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Supplier not found"));
+
+        supplier.setName(request.getName());
+        supplier.setContactPerson(request.getContactPerson());
+        supplier.setEmail(request.getEmail());
+        supplier.setPhone(request.getPhone());
+        supplier.setAddress(request.getAddress());
+
+        return supplierMapper.toResponseDto(supplierRepository.save(supplier));
+    }
+
+    @Transactional
+    public void deleteSupplier(Long id) {
+        if (!supplierRepository.existsById(id)) throw new RuntimeException("Supplier not found");
+        supplierRepository.deleteById(id);
+    }
 }

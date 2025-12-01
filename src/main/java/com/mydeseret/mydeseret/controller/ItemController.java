@@ -37,4 +37,17 @@ public class ItemController {
             Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
             return ResponseEntity.ok(itemService.getAllItems(pageable));
     }
+
+    @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('ITEM_UPDATE')")
+    public ResponseEntity<ItemResponseDto> updateItem(@PathVariable Long id, @Valid @RequestBody ItemRequestDto request) {
+        return ResponseEntity.ok(itemService.updateItem(id, request));
+    }
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('ITEM_DELETE')")
+    public ResponseEntity<Void> deleteItem(@PathVariable Long id) {
+        itemService.deleteItem(id);
+        return ResponseEntity.noContent().build();
+    }
 }

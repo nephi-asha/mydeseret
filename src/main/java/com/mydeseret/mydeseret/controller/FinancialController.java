@@ -20,7 +20,7 @@ public class FinancialController {
     @GetMapping("/pnl")
     @PreAuthorize("hasAuthority('FINANCIAL_REPORT_READ')")
     public ResponseEntity<FinancialReportDto> getProfitAndLoss(
-            @RequestParam(required = false) LocalDate startDate,
+        @RequestParam(required = false) LocalDate startDate,
             @RequestParam(required = false) LocalDate endDate) {
 
         // Default to Current Month if no dates provided

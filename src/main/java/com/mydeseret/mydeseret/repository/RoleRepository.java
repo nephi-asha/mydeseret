@@ -16,4 +16,6 @@ public interface RoleRepository extends JpaRepository<Role, Integer> {
 
     @Query("SELECT r FROM Role r WHERE r.roleName = :name AND (r.tenant IS NULL OR r.tenant.tenantId = :tenant_id)")
     Optional<Role> findByNameAndTenant(@Param("name") String name, @Param("tenant_id") Long tenant_id);
+
+    void deleteByTenant_TenantId(Long tenantId);
 }

@@ -27,4 +27,28 @@ public class CustomerService {
         return customerRepository.findAll(pageable)
                 .map(customerMapper::toResponseDto);
     }
+
+    @Transactional
+    public CustomerResponseDto updateCustomer(Long id, CustomerRequestDto request) {
+        Customer customer = customerRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Customer not found"));
+
+        customer.setName(request.getName());
+        customer.setEmail(request.getEmail());
+        customer.setPhone(request.getPhone());
+        customer.setAddress(request.getAddress());
+        if (request.getCreditLimit() != null) {
+            customer.setCreditLimit(request.getCreditLimit());
+        }
+
+        return customerMapper.toResponseDto(customerRepository.save(customer));
+    }
+
+    @Transactional
+    public void deleteCustomer(Long id) {
+        if (!customerRepository.existsById(id)) {
+             throw new RuntimeException("Customer not found");
+        }
+        customerRepository.deleteById(id);
+    }
 }

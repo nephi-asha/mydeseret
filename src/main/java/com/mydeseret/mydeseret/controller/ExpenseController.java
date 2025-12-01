@@ -29,4 +29,17 @@ public class ExpenseController {
     public ResponseEntity<List<ExpenseResponseDto>> getExpenses() {
         return ResponseEntity.ok(expenseService.getAllExpenses());
     }
+
+    @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('EXPENSE_UPDATE')")
+    public ResponseEntity<ExpenseResponseDto> updateExpense(@PathVariable Long id, @Valid @RequestBody ExpenseRequestDto request) {
+        return ResponseEntity.ok(expenseService.updateExpense(id, request));
+    }
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('EXPENSE_DELETE')")
+    public ResponseEntity<Void> deleteExpense(@PathVariable Long id) {
+        expenseService.deleteExpense(id);
+        return ResponseEntity.noContent().build();
+    }
 }

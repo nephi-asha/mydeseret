@@ -18,6 +18,9 @@ public class Category {
     @Column(name = "name")
     private String name;
 
+    @Column(name = "is_active")
+    private boolean active = true;
+
     @Column(name = "description")
     private String description;
 
@@ -56,5 +59,12 @@ public class Category {
         this.createdDate = createdDate;
     }
 
-    
+    public void setActive(boolean active) {
+        this.active = active;
+    }
+
+    public boolean getActive() {
+        return active;
+    }
+
 }

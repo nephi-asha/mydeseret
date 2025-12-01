@@ -8,6 +8,7 @@ import com.mydeseret.mydeseret.model.User;
 import com.mydeseret.mydeseret.repository.CategoryRepository;
 import com.mydeseret.mydeseret.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+// import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,5 +43,26 @@ public class CategoryService {
                 .stream()
                 .map(categoryMapper::toResponseDto)
                 .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public CategoryResponseDto updateCategory(Long id, CategoryRequestDto request) {
+        Category category = categoryRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Category not found"));
+        
+        category.setName(request.getName());
+        category.setDescription(request.getDescription());
+        
+        return categoryMapper.toResponseDto(categoryRepository.save(category));
+    }
+
+    @Transactional
+    public void deleteCategory(Long id) {
+        // Database constraints will fail if items are linked to this category.
+        // i would have to first check for linked items
+        if (!categoryRepository.existsById(id)) {
+             throw new RuntimeException("Category not found");
+        }
+        categoryRepository.deleteById(id);
     }
 }

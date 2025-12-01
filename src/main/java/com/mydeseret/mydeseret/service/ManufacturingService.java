@@ -161,4 +161,12 @@ public class ManufacturingService {
 
         return "Successfully built " + totalOutput + " " + bp.getOutputItem().getName();
     }
+
+    @Transactional
+    public void deleteBlueprint(Long id) {
+        if (!bluePrintRepository.existsById(id)) {
+             throw new RuntimeException("Blueprint not found");
+        }
+        bluePrintRepository.deleteById(id);
+    }
 }

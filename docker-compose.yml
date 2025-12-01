@@ -1,20 +1,38 @@
 version: '3.8'
 
 services:
+  # 1. Spring Boot Application
   app:
-    image: mydeseret-api:latest
     build: .
+    image: mydeseret-api:latest
     container_name: mydeseret-api
     ports:
       - "8080:8080"
     environment:
-      # Now these pull from your .env file too!
+      # Database (AWS RDS)
       - DB_URL=${DB_URL}
       - DB_USERNAME=${DB_USERNAME}
       - DB_PASSWORD=${DB_PASSWORD}
       
       # Secrets
       - JWT_SECRET=${JWT_SECRET}
+      
+      # Email
       - MAIL_USERNAME=${MAIL_USERNAME}
       - MAIL_PASSWORD=${MAIL_PASSWORD}
+      
+      # Redis Configuration
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    
+    depends_on:
+      - redis
+    restart: always
+
+  # 2. Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: mydeseret-redis
+    ports:
+      - "6379:6379"
     restart: always

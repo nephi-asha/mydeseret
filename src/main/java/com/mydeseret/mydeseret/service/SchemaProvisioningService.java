@@ -45,6 +45,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
+
 import javax.sql.DataSource;
 
 @Service
@@ -82,5 +86,18 @@ public class SchemaProvisioningService {
 
         flyway.migrate();
         System.out.println("Migrated schema: " + schemaName);
+    }
+
+    @Transactional
+    public void dropTenantSchema(String schemaName) {
+        try (Connection connection = dataSource.getConnection();
+             Statement stmt = connection.createStatement()) {
+            
+            stmt.execute("DROP SCHEMA IF EXISTS \"" + schemaName + "\" CASCADE");
+            System.out.println("Successfully dropped schema: " + schemaName);
+            
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to drop schema: " + schemaName, e);
+        }
     }
 }

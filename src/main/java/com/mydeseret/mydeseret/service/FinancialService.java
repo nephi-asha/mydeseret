@@ -3,6 +3,8 @@ package com.mydeseret.mydeseret.service;
 import com.mydeseret.mydeseret.dto.FinancialReportDto;
 import com.mydeseret.mydeseret.repository.ExpenseRepository;
 import com.mydeseret.mydeseret.repository.SaleRepository;
+
+import org.hibernate.envers.Audited;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -12,6 +14,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Service
+@Audited
 public class FinancialService {
 
     @Autowired private SaleRepository saleRepository;

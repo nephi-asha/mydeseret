@@ -19,6 +19,9 @@ public class Customer {
     private String phone;
     private String address;
 
+    @Column(name = "is_active")
+    private boolean active = true;
+
     // FINANCIALS
     @Column(name = "credit_limit")
     private BigDecimal creditLimit = new BigDecimal("1000.00"); // Default limit
@@ -46,4 +49,6 @@ public class Customer {
     public void setCurrentDebt(BigDecimal currentDebt) { this.currentDebt = currentDebt; }
     public LocalDate getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDate createdAt) { this.createdAt = createdAt; }
+    public boolean isActive() { return active; }
+    public void setActive(boolean active) {  this.active = active; }
 }

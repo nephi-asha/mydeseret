@@ -43,4 +43,11 @@ public class ManufacturingController {
         
         return ResponseEntity.ok(manufacturingService.buildProduct(blueprintId, request));
     }
+
+    @DeleteMapping("/BluePrints/{id}")
+    @PreAuthorize("hasAuthority('BLUEPRINT_DELETE')")
+    public ResponseEntity<Void> deleteBlueprint(@PathVariable Long id) {
+        manufacturingService.deleteBlueprint(id);
+        return ResponseEntity.noContent().build();
+    }
 }

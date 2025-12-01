@@ -18,6 +18,7 @@ CREATE TABLE IF NOT EXISTS tenants (
     tenant_name VARCHAR(255) NOT NULL,
     schema_name VARCHAR(255) NOT NULL UNIQUE,
     user_id UUID, 
+    time_zone VARCHAR(50) DEFAULT 'UTC',
     created_at DATE DEFAULT CURRENT_DATE,
     updated_at DATE DEFAULT CURRENT_DATE
 );

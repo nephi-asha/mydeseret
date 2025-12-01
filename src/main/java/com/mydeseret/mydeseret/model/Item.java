@@ -6,6 +6,8 @@ import jakarta.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+
+
 @Entity
 @Table(name = "items")
 // @Data
@@ -45,6 +47,9 @@ public class Item {
     @ManyToOne
     @JoinColumn(name = "category_id")
     private Category category;
+
+    @Column(name = "is_active")
+    private boolean active = true;
 
     @Column(name = "created_at")
     private LocalDate createdDate = LocalDate.now();
@@ -148,5 +153,16 @@ public class Item {
         this.updatedDate = updatedDate;
     }
 
-    
+        public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
+
+    public boolean getActive() {
+        return active;
+    }
+
 }

@@ -81,4 +81,22 @@ public class ExpenseService {
                 .map(expenseMapper::toResponseDto)
                 .collect(Collectors.toList());
     }
+
+    @Transactional
+    public ExpenseResponseDto updateExpense(Long id, ExpenseRequestDto request) {
+        Expense expense = expenseRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Expense not found"));
+        
+        expense.setDescription(request.getDescription());
+        expense.setAmount(request.getAmount());
+        expense.setDate(request.getExpenseDate());
+        
+        return expenseMapper.toResponseDto(expenseRepository.save(expense));
+    }
+
+    @Transactional
+    public void deleteExpense(Long id) {
+        if (!expenseRepository.existsById(id)) throw new RuntimeException("Expense not found");
+        expenseRepository.deleteById(id);
+    }
 }

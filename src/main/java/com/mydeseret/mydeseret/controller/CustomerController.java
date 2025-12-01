@@ -29,4 +29,17 @@ public class CustomerController {
     public ResponseEntity<Page<CustomerResponseDto>> getCustomers(Pageable pageable) {
         return ResponseEntity.ok(customerService.getAllCustomers(pageable));
     }
+
+    @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('CUSTOMER_UPDATE')")
+    public ResponseEntity<CustomerResponseDto> updateCustomer(@PathVariable Long id, @Valid @RequestBody CustomerRequestDto request) {
+        return ResponseEntity.ok(customerService.updateCustomer(id, request));
+    }
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('CUSTOMER_DELETE')")
+    public ResponseEntity<Void> deleteCustomer(@PathVariable Long id) {
+        customerService.deleteCustomer(id);
+        return ResponseEntity.noContent().build();
+    }
 }

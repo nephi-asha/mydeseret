@@ -11,4 +11,5 @@ import com.mydeseret.mydeseret.model.User;
 @Repository
 public interface UserRepository extends JpaRepository<User, UUID>{
     Optional<User> findByEmail(String email);
+    void deleteByTenant_TenantId(Long tenantId);
 }

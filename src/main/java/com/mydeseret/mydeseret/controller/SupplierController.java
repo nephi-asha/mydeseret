@@ -29,4 +29,16 @@ public class SupplierController {
     public ResponseEntity<Page<SupplierResponseDto>> getSuppliers(Pageable pageable) {
         return ResponseEntity.ok(supplierService.getAllSuppliers(pageable));
     }
+    @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('SUPPLIER_UPDATE')")
+    public ResponseEntity<SupplierResponseDto> updateSupplier(@PathVariable Long id, @Valid @RequestBody SupplierRequestDto request) {
+        return ResponseEntity.ok(supplierService.updateSupplier(id, request));
+    }
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('SUPPLIER_DELETE')")
+    public ResponseEntity<Void> deleteSupplier(@PathVariable Long id) {
+        supplierService.deleteSupplier(id);
+        return ResponseEntity.noContent().build();
+    }
 }

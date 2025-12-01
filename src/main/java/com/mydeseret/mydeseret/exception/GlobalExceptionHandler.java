@@ -53,7 +53,7 @@ public class GlobalExceptionHandler {
         response.put("timestamp", LocalDateTime.now());
         response.put("status", HttpStatus.UNAUTHORIZED.value());
         response.put("error", "Unauthorized");
-        response.put("message", "Invalid email or password"); // Custom safe message
+        response.put("message", "Invalid email or password");
 
         return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
     }

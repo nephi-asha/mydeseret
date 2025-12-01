@@ -18,10 +18,11 @@ public class Supplier {
     private String email;
     private String phone;
     private String address;
+    private boolean active = true;
 
     @Column(name = "created_at")
     private LocalDate createdAt = LocalDate.now();
-
+    
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public String getName() { return name; }
@@ -36,4 +37,6 @@ public class Supplier {
     public void setAddress(String address) { this.address = address; }
     public LocalDate getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDate createdAt) { this.createdAt = createdAt; }
+    public boolean isActive() { return active; }
+    public void setActive(boolean active) { this.active = active; }
 }
