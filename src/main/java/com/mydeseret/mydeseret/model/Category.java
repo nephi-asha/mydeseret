@@ -5,9 +5,12 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 
+import org.hibernate.envers.Audited;
+
+// @Data
 @Entity
 @Table(name = "categories")
-// @Data
+@Audited
 public class Category {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

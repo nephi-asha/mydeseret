@@ -1,11 +1,13 @@
 package com.mydeseret.mydeseret.model;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
 import org.hibernate.annotations.UuidGenerator;
+import org.hibernate.envers.Audited;
 
 import com.mydeseret.mydeseret.model.enums.ApplicationPermission;
 
@@ -26,9 +28,10 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 // import lombok.Data;
 
+// @Data
 @Entity
 @Table(name = "users", schema = "public")
-// @Data
+@Audited
 public class User {
 
     @Id
@@ -67,6 +70,12 @@ public class User {
 
     @Column(name =  "approval_token")
     private String approvalToken;
+
+    @Column(name = "reset_token")
+    private String resetToken;
+
+    @Column(name = "reset_token_expiry")
+    private LocalDateTime resetTokenExpiry;    
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "tenant_id")
@@ -169,6 +178,11 @@ public class User {
     public void setApprovalToken(String approvalToken) {
         this.approvalToken = approvalToken;
     }
+
+    public String getResetToken() { return resetToken; }
+    public void setResetToken(String resetToken) { this.resetToken = resetToken; }
+    public LocalDateTime getResetTokenExpiry() { return resetTokenExpiry; }
+    public void setResetTokenExpiry(LocalDateTime resetTokenExpiry) { this.resetTokenExpiry = resetTokenExpiry; }
 
     public Tenant getTenant() {
         return tenant;

@@ -6,11 +6,14 @@ import jakarta.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+import org.hibernate.envers.Audited;
 
 
+
+// @Data
 @Entity
 @Table(name = "items")
-// @Data
+@Audited
 public class Item {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -43,6 +46,11 @@ public class Item {
     @Column(name = "reorder_point")
     private int reorderPoint = 10; // Will set this to 10 so it alerts when stock drops below this value
 
+    @Column(name = "image_key")
+    private String imageKey; // Example "items/123-flour.jpg"
+
+    public String getImageKey() { return imageKey; }
+    public void setImageKey(String imageKey) { this.imageKey = imageKey; }
 
     @ManyToOne
     @JoinColumn(name = "category_id")

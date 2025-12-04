@@ -15,6 +15,25 @@ public class ItemResponseDto {
     private int quantity_on_hand; // Cannot be changed
     private String categoryName;
     private Long category_id;
+    private String imageKey;
+    private String imageUrl;
+
+    public String getImageKey() {
+        return imageKey;
+    }
+
+    public void setImageKey(String imageKey) {
+        this.imageKey = imageKey;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
     
     public Long getItemId() {
         return item_id;
@@ -76,6 +95,5 @@ public class ItemResponseDto {
     public void setCategoryId(Long category_id) {
         this.category_id = category_id;
     }
-
     
 }

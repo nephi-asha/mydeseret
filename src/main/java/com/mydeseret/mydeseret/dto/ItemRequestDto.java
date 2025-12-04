@@ -1,34 +1,69 @@
 package com.mydeseret.mydeseret.dto;
 
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.PositiveOrZero;
+// import jakarta.validation.constraints.PositiveOrZero;
 // import lombok.Data;
 import java.math.BigDecimal;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
+
 // @Data
+@Schema(description = "Payload for creating or updating an Inventory Item")
 public class ItemRequestDto {
-    @NotNull(message = "Item name is required")
+@Schema(
+        description = "The display name of the item", 
+        example = "Premium White Flour"
+    )
+    @NotNull(message = "Name is required")
     private String name;
 
+    @Schema(
+        description = "Stock Keeping Unit - Unique identifier for tracking", 
+        example = "RAW-FLR-001"
+    )
     @NotNull(message = "SKU is required")
     private String sku;
 
+    @Schema(
+        description = "Detailed description of the item", 
+        example = "High-grade flour suitable for pastries and breads"
+    )
     private String description;
 
-    @NotNull(message = "Unit of Measure is required (e.g., PCS, KG, LITER)")
-    private String unit_of_measure;
+    @Schema(
+        description = "The unit of measurement for this item", 
+        example = "KG", 
+        allowableValues = {"KG", "UNIT", "LITRE", "BOX"}
+    )
+    @NotNull(message = "Unit of Measure is required")
+    private String unitOfMeasure;
 
-    @PositiveOrZero(message = "Cost price must be positive")
-    private BigDecimal cost_price;
+    @Schema(
+        description = "The cost to purchase or produce one unit", 
+        example = "1.50"
+    )
+    private BigDecimal costPrice;
 
-    @PositiveOrZero(message = "Selling price must be positive")
-    private BigDecimal selling_price;
+    @Schema(
+        description = "The price this item is sold at (if applicable)", 
+        example = "0.00"
+    )
+    private BigDecimal sellingPrice;
 
-    @PositiveOrZero
+    @Schema(
+        description = "Threshold for low-stock alerts", 
+        example = "50"
+    )
+    @Min(0)
     private int reorderPoint;
 
-    // Optional: Only If a business want to organize items by category
-    private Long category_id;
+    @Schema(
+        description = "ID of the Category this item belongs to", 
+        example = "1"
+    )
+    private Long categoryId;
 
     public String getName() {
         return name;
@@ -55,27 +90,27 @@ public class ItemRequestDto {
     }
 
     public String getUnitOfMeasure() {
-        return unit_of_measure;
+        return unitOfMeasure;
     }
 
-    public void setUnitOfMeasure(String unit_of_measure) {
-        this.unit_of_measure = unit_of_measure;
+    public void setUnitOfMeasure(String unitOfMeasure) {
+        this.unitOfMeasure = unitOfMeasure;
     }
 
     public BigDecimal getCostPrice() {
-        return cost_price;
+        return costPrice;
     }
 
-    public void setCostPrice(BigDecimal cost_price) {
-        this.cost_price = cost_price;
+    public void setCostPrice(BigDecimal costPrice) {
+        this.costPrice = costPrice;
     }
 
     public BigDecimal getSellingPrice() {
-        return selling_price;
+        return sellingPrice;
     }
 
-    public void setSellingPrice(BigDecimal selling_price) {
-        this.selling_price = selling_price;
+    public void setSellingPrice(BigDecimal sellingPrice) {
+        this.sellingPrice = sellingPrice;
     }
 
     public int getReorderPoint() {
@@ -87,11 +122,11 @@ public class ItemRequestDto {
     }
 
     public Long getCategoryId() {
-        return category_id;
+        return categoryId;
     }
 
-    public void setCategoryId(Long category_id) {
-        this.category_id = category_id;
+    public void setCategoryId(Long categoryId) {
+        this.categoryId = categoryId;
     }
 
     

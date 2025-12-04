@@ -9,11 +9,14 @@ import com.mydeseret.mydeseret.model.User;
 import com.mydeseret.mydeseret.repository.CategoryRepository;
 import com.mydeseret.mydeseret.repository.ItemRepository;
 import com.mydeseret.mydeseret.repository.UserRepository;
+import com.mydeseret.mydeseret.specification.ItemSpecification;
 
-import org.hibernate.envers.Audited;
+import java.math.BigDecimal;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,7 +24,6 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.CacheEvict;
 
 @Service
-@Audited
 public class ItemService {
 
     @Autowired private ItemRepository itemRepository;
@@ -140,8 +142,24 @@ public class ItemService {
 
     // Key structure: "items::page_0_size_20_sort_id"
     @Cacheable(value = "items", key = "#pageable.pageNumber + '_' + #pageable.pageSize + '_' + #pageable.sort")    
-    public Page<ItemResponseDto> getAllItems(Pageable pageable) {
-        return itemRepository.findByActiveTrue(pageable) 
+    public Page<ItemResponseDto> getAllItems(String search, BigDecimal minPrice, BigDecimal maxPrice, Long categoryId, Pageable pageable) {
+        
+        // Combine filters
+        Specification<Item> spec = Specification.where(ItemSpecification.isActive())
+                .and(ItemSpecification.hasSearchText(search))
+                .and(ItemSpecification.hasPriceRange(minPrice, maxPrice))
+                .and(ItemSpecification.hasCategory(categoryId));
+
+        return itemRepository.findAll(spec, pageable)
                 .map(itemMapper::toResponseDto);
+    }
+
+    @Transactional
+    public void updateItemImage(Long itemId, String imageKey) {
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(() -> new RuntimeException("Item not found"));
+        
+        item.setImageKey(imageKey);
+        itemRepository.save(item);
     }
 }

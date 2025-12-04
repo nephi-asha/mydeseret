@@ -4,6 +4,8 @@ import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.hibernate.envers.Audited;
+
 import com.mydeseret.mydeseret.model.enums.ApplicationPermission;
 
 import jakarta.persistence.CollectionTable;
@@ -22,9 +24,10 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 // import lombok.Data;
 
+// @Data
 @Entity
 @Table(name = "roles", schema = "public")
-// @Data
+@Audited
 public class Role {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

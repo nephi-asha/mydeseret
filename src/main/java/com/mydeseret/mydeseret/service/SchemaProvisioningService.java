@@ -63,7 +63,7 @@ public class SchemaProvisioningService {
         Flyway flyway = Flyway.configure()
                 .dataSource(dataSource)
                 .schemas(schemaName) // Target the new schema
-                .locations("classpath:db/migration/tenants") // I'll then use the tenant scripts
+                .locations("classpath:db/migrations/tenants") // I'll then use the tenant scripts
                 .baselineOnMigrate(true) // I set this to true just in case the tables are already there so flyway wont complain
                 .load();
 
@@ -80,7 +80,7 @@ public class SchemaProvisioningService {
         Flyway flyway = Flyway.configure()
                 .dataSource(dataSource)
                 .schemas(schemaName)
-                .locations("classpath:db/migration/tenants")
+                .locations("classpath:db/migrations/tenants")
                 .baselineOnMigrate(true)
                 .load();
 

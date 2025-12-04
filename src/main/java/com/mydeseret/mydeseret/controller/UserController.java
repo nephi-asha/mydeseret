@@ -14,6 +14,8 @@ import com.mydeseret.mydeseret.service.UserService;
 
 import jakarta.validation.Valid;
 
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 
@@ -41,4 +43,20 @@ public class UserController {
         LoginResponseDto response = userService.loginUser(loginRequest);
         return ResponseEntity.ok(response);
     }
+    
+    @PostMapping("/forgot-password")
+    public ResponseEntity<String> forgotPassword(@RequestBody Map<String, String> request) {
+        String email = request.get("email");
+        userService.forgotPassword(email);
+        return ResponseEntity.ok("If an account exists with that email, a reset link has been sent.");
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<String> resetPassword(@RequestBody Map<String, String> request) {
+        String token = request.get("token");
+        String newPassword = request.get("newPassword");
+        
+        userService.resetPassword(token, newPassword);
+        return ResponseEntity.ok("Password reset successfully. You can now login.");
+    }    
 }

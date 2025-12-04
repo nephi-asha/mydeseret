@@ -4,8 +4,11 @@ import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+import org.hibernate.envers.Audited;
+
 @Entity
 @Table(name = "customers")
+@Audited
 public class Customer {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

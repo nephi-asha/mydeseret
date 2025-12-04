@@ -3,10 +3,16 @@ package com.mydeseret.mydeseret.mapper;
 import com.mydeseret.mydeseret.dto.ItemRequestDto;
 import com.mydeseret.mydeseret.dto.ItemResponseDto;
 import com.mydeseret.mydeseret.model.Item;
+import com.mydeseret.mydeseret.service.StorageService;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class ItemMapper {
+
+    @Autowired
+    private StorageService storageService;
 
     public Item toEntity(ItemRequestDto dto) {
         if (dto == null) return null;
@@ -41,6 +47,12 @@ public class ItemMapper {
             dto.setCategoryName(item.getCategory().getName());
         }
 
+        if (item.getImageKey() != null) {
+            dto.setImageKey(item.getImageKey());
+            // Generate a temporary public URL (valid for 60 mins)
+            dto.setImageUrl(storageService.getPresignedUrl(item.getImageKey()));
+        }
+        
         return dto;
     }
 }

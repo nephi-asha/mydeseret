@@ -3,8 +3,11 @@ package com.mydeseret.mydeseret.model;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 
+import org.hibernate.envers.Audited;
+
 @Entity
 @Table(name = "suppliers")
+@Audited
 public class Supplier {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -7,10 +7,13 @@ import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+import org.hibernate.envers.Audited;
+
 
 
 @Entity
 @Table(name = "employees")
+@Audited
 // @Data
 public class Employee {
     @Id

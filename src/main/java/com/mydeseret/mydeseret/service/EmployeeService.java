@@ -7,7 +7,6 @@ import com.mydeseret.mydeseret.model.*;
 import com.mydeseret.mydeseret.model.enums.EmployeeStatus;
 import com.mydeseret.mydeseret.repository.*;
 
-import org.hibernate.envers.Audited;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -21,7 +20,6 @@ import java.util.Collections;
 import java.util.UUID;
 
 @Service
-@Audited
 public class EmployeeService {
 
     @Autowired private UserRepository userRepository;

@@ -1,35 +1,32 @@
 version: '3.8'
 
 services:
-  # 1. Spring Boot Application
   app:
-    build: .
     image: mydeseret-api:latest
+    build: .
     container_name: mydeseret-api
     ports:
       - "8080:8080"
     environment:
-      # Database (AWS RDS)
       - DB_URL=${DB_URL}
       - DB_USERNAME=${DB_USERNAME}
       - DB_PASSWORD=${DB_PASSWORD}
-      
-      # Secrets
       - JWT_SECRET=${JWT_SECRET}
-      
-      # Email
       - MAIL_USERNAME=${MAIL_USERNAME}
       - MAIL_PASSWORD=${MAIL_PASSWORD}
-      
-      # Redis Configuration
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_REGION=${AWS_REGION}
+      - AWS_S3_BUCKET_NAME=${AWS_S3_BUCKET_NAME}
+      - PAYSTACK_SECRET_KEY=${PAYSTACK_SECRET_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - FRONTEND_URL=${FRONTEND_URL}
       - REDIS_HOST=redis
       - REDIS_PORT=6379
-    
     depends_on:
       - redis
     restart: always
 
-  # 2. Redis Cache
   redis:
     image: redis:7-alpine
     container_name: mydeseret-redis

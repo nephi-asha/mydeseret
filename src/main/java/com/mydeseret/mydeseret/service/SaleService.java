@@ -1,14 +1,18 @@
 package com.mydeseret.mydeseret.service;
 
 import com.mydeseret.mydeseret.dto.SaleRequestDto;
+import com.mydeseret.mydeseret.event.SaleCreatedEvent; // Import Event
 import com.mydeseret.mydeseret.model.*;
 import com.mydeseret.mydeseret.model.enums.PaymentMethod;
 import com.mydeseret.mydeseret.model.enums.SaleStatus;
-import com.mydeseret.mydeseret.model.enums.StockReason;
 import com.mydeseret.mydeseret.repository.*;
+import com.mydeseret.mydeseret.specification.SaleSpecification;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher; // Import Publisher
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,7 +26,9 @@ public class SaleService {
     @Autowired private SaleRepository saleRepository;
     @Autowired private ItemRepository itemRepository;
     @Autowired private CustomerRepository customerRepository;
-    @Autowired private InventoryService inventoryService;
+    @Autowired private ApplicationEventPublisher eventPublisher;
+    // @Autowired private RabbitTemplate rabbitTemplate;
+
 
     @Transactional
     public Sale createSale(SaleRequestDto request) {
@@ -54,7 +60,6 @@ public class SaleService {
             lineItem.setItem(item);
             lineItem.setQuantity(itemDto.getQuantity());
             lineItem.setUnitPrice(item.getSellingPrice());
-            
             lineItem.setCostPrice(item.getCostPrice());
             
             BigDecimal lineTotal = item.getSellingPrice().multiply(BigDecimal.valueOf(itemDto.getQuantity()));
@@ -62,34 +67,28 @@ public class SaleService {
             
             sale.getItems().add(lineItem);
             grandTotal = grandTotal.add(lineTotal);
-
-            inventoryService.adjustStock(
-                item.getItemId(),
-                -itemDto.getQuantity(),
-                StockReason.SALE,
-                sale.getReceiptNumber(),
-                "Sold to " + (customer != null ? customer.getName() : "Guest")
-            );
         }
 
         sale.setTotalAmount(grandTotal);
 
         if (request.getPaymentMethod() == PaymentMethod.CREDIT) {
-            if (customer == null) {
-                throw new RuntimeException("Cannot sell on CREDIT to a Guest.");
-            }
-            BigDecimal newDebt = customer.getCurrentDebt().add(grandTotal);
-            if (newDebt.compareTo(customer.getCreditLimit()) > 0) {
+            if (customer == null) throw new RuntimeException("Cannot sell on CREDIT to a Guest.");
+            if (customer.getCurrentDebt().add(grandTotal).compareTo(customer.getCreditLimit()) > 0) {
                 throw new RuntimeException("Credit Limit Exceeded!");
             }
-            customer.setCurrentDebt(newDebt);
-            customerRepository.save(customer);
         }
 
-        return saleRepository.save(sale);
-    }
+        Sale savedSale = saleRepository.save(sale);
+        eventPublisher.publishEvent(new SaleCreatedEvent(this, savedSale));
 
-    public Page<Sale> getAllSales(Pageable pageable) {
-        return saleRepository.findAll(pageable);
-    }
+        return savedSale;
+        }
+
+        public Page<Sale> getAllSales(LocalDateTime start, LocalDateTime end, BigDecimal minAmount, Pageable pageable) {
+            
+            Specification<Sale> spec = Specification.where(SaleSpecification.isWithinDateRange(start, end))
+                                                    .and(SaleSpecification.hasMinAmount(minAmount));
+
+            return saleRepository.findAll(spec, pageable);
+        }
 }

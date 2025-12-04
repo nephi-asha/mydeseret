@@ -1,0 +1,31 @@
+package com.mydeseret.mydeseret.dto;
+
+import java.time.LocalDateTime;
+
+public class NotificationDto {
+    private Long id;
+    private String message;
+    private boolean isRead;
+    private LocalDateTime createdAt;
+    private String link;
+
+    public NotificationDto() {}
+    public NotificationDto(Long id, String message, boolean isRead, LocalDateTime createdAt, String link) {
+        this.id = id;
+        this.message = message;
+        this.isRead = isRead;
+        this.createdAt = createdAt;
+        this.link = link;
+    }
+
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+    public String getMessage() { return message; }
+    public void setMessage(String message) { this.message = message; }
+    public boolean isRead() { return isRead; }
+    public void setRead(boolean read) { isRead = read; }
+    public LocalDateTime getCreatedAt() { return createdAt; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+    public String getLink() { return link; }
+    public void setLink(String link) { this.link = link; }
+}

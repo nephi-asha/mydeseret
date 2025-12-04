@@ -4,9 +4,12 @@ import jakarta.persistence.*;
 // import lombok.Data;
 import java.math.BigDecimal;
 
+import org.hibernate.envers.Audited;
+
+// @Data
 @Entity
 @Table(name = "purchase_order_items")
-// @Data
+@Audited
 public class PurchaseOrderItem {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

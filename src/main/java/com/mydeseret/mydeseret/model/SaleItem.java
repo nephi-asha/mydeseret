@@ -3,8 +3,11 @@ package com.mydeseret.mydeseret.model;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 
+import org.hibernate.envers.Audited;
+
 @Entity
 @Table(name = "sale_items")
+@Audited
 public class SaleItem {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

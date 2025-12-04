@@ -23,6 +23,8 @@ public class RequisitionService {
     @Autowired private EmployeeRepository employeeRepository;
     @Autowired private UserRepository userRepository;
     @Autowired private RequisitionMapper requisitionMapper;
+    
+    @Autowired private NotificationService notificationService;
 
     private User getAuthenticatedUser() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -48,11 +50,11 @@ public class RequisitionService {
         req.setReason(request.getReason());
         req.setNeededByDate(request.getNeededByDate());
         req.setStatus(RequisitionStatus.PENDING);
-
+        
         return requisitionMapper.toResponseDto(requisitionRepository.save(req));
     }
 
-    // Approves
+    // APPROVED
     @Transactional
     public RequisitionResponseDto approveRequisition(Long id) {
         User manager = getAuthenticatedUser();
@@ -67,11 +69,25 @@ public class RequisitionService {
         req.setStatus(RequisitionStatus.APPROVED);
         req.setApprover(manager);
         req.setApprovalDate(LocalDate.now());
+        
+        Requisition savedReq = requisitionRepository.save(req);
 
-        return requisitionMapper.toResponseDto(requisitionRepository.save(req));
+        // --- TRIGGER NOTIFICATION ---
+        User requesterUser = req.getRequester().getUser();
+        String message = "Good news! Your request for " + req.getQuantity() + " " + 
+                         req.getItem().getUnitOfMeasure() + " of " + 
+                         req.getItem().getName() + " was APPROVED.";
+        
+        notificationService.sendNotification(
+            requesterUser, 
+            message, 
+            "/dashboard/requests"
+        );
+
+        return requisitionMapper.toResponseDto(savedReq);
     }
 
-    // Rejected
+    // REJECTED
     @Transactional
     public RequisitionResponseDto rejectRequisition(Long id, String reason) {
         User manager = getAuthenticatedUser();
@@ -83,8 +99,20 @@ public class RequisitionService {
         req.setApprover(manager);
         req.setApprovalDate(LocalDate.now());
         req.setRejectionReason(reason);
+        
+        Requisition savedReq = requisitionRepository.save(req);
 
-        return requisitionMapper.toResponseDto(requisitionRepository.save(req));
+        // --- TRIGGER NOTIFICATION ---
+        User requesterUser = req.getRequester().getUser();
+        String message = "Your request for " + req.getItem().getName() + " was REJECTED. Reason: " + reason;
+        
+        notificationService.sendNotification(
+            requesterUser, 
+            message, 
+            "/dashboard/requests"
+        );
+
+        return requisitionMapper.toResponseDto(savedReq);
     }
 
     public Page<RequisitionResponseDto> getAllRequisitions(Pageable pageable) {

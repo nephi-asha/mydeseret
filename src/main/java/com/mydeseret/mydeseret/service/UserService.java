@@ -1,8 +1,11 @@
 package com.mydeseret.mydeseret.service;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -32,6 +35,9 @@ public class UserService {
     EmailService emailService;
     JwtUtil jwtUtil;
     CustomUserDetailsService customUserDetailsService;
+    
+    @Value("${app.frontend.url}")
+    private String frontendUrl;
 
     @Autowired
     public UserService(
@@ -109,5 +115,46 @@ public class UserService {
         
         return new LoginResponseDto(token, user.getEmail(), roleName);
     }
+
+    // FORGOT PASSWORD
+    @Transactional
+    public void forgotPassword(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
+
+        String token = UUID.randomUUID().toString();
+        
+        // token is saved  to dDB with 15 minute expiry
+        user.setResetToken(token);
+        user.setResetTokenExpiry(LocalDateTime.now().plusMinutes(15));
+        userRepository.save(user);
+
+        String resetLink = frontendUrl + "/reset-password?token=" + token;
+        String body = "Hello " + user.getFirstName() + ",\n\n" +
+                      "You requested a password reset.\n" +
+                      "Click the link below to reset it (Valid for 15 minutes):\n\n" +
+                      resetLink + "\n\n" +
+                      "If you did not request this, please ignore this email.";
+        
+        emailService.sendEmail(user.getEmail(), "Password Reset Request", body);
+    }
+
+    @Transactional
+    public void resetPassword(String token, String newPassword) {
+        User user = userRepository.findByResetToken(token)
+                .orElseThrow(() -> new RuntimeException("Invalid or missing reset token."));
+
+        if (user.getResetTokenExpiry().isBefore(LocalDateTime.now())) {
+            throw new RuntimeException("Reset token has expired. Please request a new one.");
+        }
+
+        user.setPasswordHash(passwordEncoder.encode(newPassword));
+        
+        // Token gets cleared so it can't be used again
+        user.setResetToken(null);
+        user.setResetTokenExpiry(null);
+        
+        userRepository.save(user);
+    }    
 
 }

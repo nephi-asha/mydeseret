@@ -3,6 +3,11 @@ package com.mydeseret.mydeseret.controller;
 import com.mydeseret.mydeseret.dto.BluePrintRequestDto;
 import com.mydeseret.mydeseret.model.BluePrint;
 import com.mydeseret.mydeseret.service.ManufacturingService;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -35,8 +40,17 @@ public class ManufacturingController {
     //     return ResponseEntity.ok(manufacturingService.buildProduct(BluePrintId, quantity));
     // }
     // POST /api/v1/manufacturing/build/{blueprintId}
+    @Operation(
+        summary = "Run Production Batch (Build)",
+        description = "Converts Raw Materials into Finished Goods based on the Blueprint recipe. " +
+                      "Automatically deducts stock and calculates variance (Waste) if 'actuals' are provided."
+    )
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Production successful. Inventory updated."),
+        @ApiResponse(responseCode = "400", description = "Insufficient raw materials or invalid input")
+    })
     @PostMapping("/build/{blueprintId}")
-    @PreAuthorize("hasAuthority('MANUFACTURING_BUILD')")    
+    @PreAuthorize("hasAuthority('BLUEPRINT_CREATE')")
     public ResponseEntity<String> buildProduct(
             @PathVariable Long blueprintId, 
             @RequestBody BuildRequestDto request) {
