@@ -20,7 +20,7 @@ public class AIController {
 
     @Operation(summary = "Ask the AI a question", description = "Uses RAG to find relevant sales/expense data and generate an answer.")
     @PostMapping("/ask")
-    @PreAuthorize("hasAuthority('FINANCIAL_REPORT_READ')")
+    @PreAuthorize("hasAuthority('AI_ASK')")
     public ResponseEntity<Map<String, String>> askAI(@RequestBody Map<String, String> request) {
         String question = request.get("question");
         if (question == null || question.trim().isEmpty()) {
@@ -33,7 +33,7 @@ public class AIController {
 
     @Operation(summary = "Manually trigger data ingestion", description = "Forces the AI to read the latest data immediately.")
     @PostMapping("/ingest")
-    @PreAuthorize("hasAuthority('ROLE_OWNER')")
+    @PreAuthorize("hasAuthority('AI_INGEST')")
     public ResponseEntity<String> triggerIngestion(@RequestBody String content) {
         aiService.ingestData(content);
         return ResponseEntity.ok("Data ingested into Vector Store.");

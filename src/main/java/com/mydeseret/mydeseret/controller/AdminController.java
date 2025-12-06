@@ -33,29 +33,30 @@ public class AdminController {
     @Autowired
     private SchemaProvisioningService schemaProvisioningService;
 
-    @Autowired private TenantRepository tenantRepository; 
-    @Autowired private RoleRepository roleRepository;
+    @Autowired
+    private TenantRepository tenantRepository;
+    @Autowired
+    private RoleRepository roleRepository;
 
     // GET /api/v1/admin/pending-owners
     @GetMapping("/pending-owners")
-    @PreAuthorize("hasAuthority('USER_READ')")
+    @PreAuthorize("hasAuthority('BUSINESS_READ')")
     public ResponseEntity<List<UserResponseDto>> getPendingOwners() {
         List<User> pendingOwners = userRepository.findAll().stream()
-            .filter(user -> !user.is_active()) 
-            .filter(user -> user.getRoles().stream()
+                .filter(user -> !user.is_active())
+                .filter(user -> user.getRoles().stream()
                         .anyMatch(role -> role.getRoleName().equals("OWNER")))
-            .collect(Collectors.toList());
+                .collect(Collectors.toList());
 
         return ResponseEntity.ok(
-            pendingOwners.stream().map(UserMapper::toResponseDto).collect(Collectors.toList())
-        );
+                pendingOwners.stream().map(UserMapper::toResponseDto).collect(Collectors.toList()));
     }
 
     /**
      * Gets a list of all INACTIVE users (Pending Businesses)
      */
     @GetMapping("/pending")
-    @PreAuthorize("hasAuthority('USER_READ')")
+    @PreAuthorize("hasAuthority('BUSINESS_READ')")
     public ResponseEntity<List<UserResponseDto>> getPendingUsers() {
         List<User> pendingUsers = userRepository.findAll().stream()
                 .filter(user -> !user.is_active())
@@ -69,9 +70,9 @@ public class AdminController {
     }
 
     @GetMapping("/owners")
-    @PreAuthorize("hasAuthority('USER_READ')")
+    @PreAuthorize("hasAuthority('BUSINESS_READ')")
     public ResponseEntity<List<UserResponseDto>> getAllOwners() {
-            List<User> allUsers = userRepository.findAll().stream()
+        List<User> allUsers = userRepository.findAll().stream()
                 .collect(Collectors.toList());
 
         List<UserResponseDto> response = allUsers.stream()
@@ -85,7 +86,8 @@ public class AdminController {
      * Approve a specific user/business
      */
     @PutMapping("/approve/{user_id}")
-    @PreAuthorize("hasAuthority('USER_UPDATE')")
+    @PostMapping("/approve/{user_id}")
+    @PreAuthorize("hasAuthority('BUSINESS_APPROVE')")
     public ResponseEntity<String> approveOwner(@PathVariable UUID user_id) {
         User user = userRepository.findById(user_id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -106,10 +108,10 @@ public class AdminController {
 
         String subject = "Account Approved - MyDeseret Technologies";
         String body = "Congratulations " + user.getFirstName() + "!\n\n" +
-                      "Your business '" + user.getBusinessName() + "' has been APPROVED.\n" +
-                      "You can now log in and start managing your business.\n\n" +
-                      "Login here: http://localhost:8080/login\n\n" +
-                      "Welcome aboard,\nMyDeseret Technologies Team";
+                "Your business '" + user.getBusinessName() + "' has been APPROVED.\n" +
+                "You can now log in and start managing your business.\n\n" +
+                // "Login here: http://localhost:8080/login\n\n" +
+                "Welcome aboard,\nMyDeseret Technologies Team";
 
         emailService.sendEmail(user.getEmail(), subject, body);
 
@@ -121,7 +123,8 @@ public class AdminController {
      * User cannot log in, but their data remains safe.
      */
     @PutMapping("/deactivate/{userId}")
-    @PreAuthorize("hasAuthority('USER_UPDATE')")
+    @PostMapping("/deactivate/{userId}") 
+    @PreAuthorize("hasAuthority('BUSINESS_APPROVE')") 
     public ResponseEntity<String> deactivateOwner(@PathVariable UUID userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -130,25 +133,24 @@ public class AdminController {
         userRepository.save(user);
 
         emailService.sendEmail(
-            user.getEmail(), 
-            "Account Deactivated", 
-            "Your business account has been deactivated. Please contact support."
-        );
+                user.getEmail(),
+                "Account Deactivated",
+                "Your business account has been deactivated. Please contact support.");
 
         return ResponseEntity.ok("Business deactivated successfully.");
     }
 
     /**
-     * DELETE: Hard Wipe 
+     * DELETE: Hard Wipe
      * Removes Schema, Tenant, Roles, and All Users (Owner + Employees).
      */
     @DeleteMapping("/delete/{userId}")
-    @PreAuthorize("hasAuthority('USER_DELETE')")
+    @PreAuthorize("hasAuthority('BUSINESS_DELETE')")
     @Transactional
     public ResponseEntity<String> deleteBusiness(@PathVariable UUID userId) {
         User owner = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        
+
         Tenant tenant = owner.getTenant();
         if (tenant == null) {
             userRepository.delete(owner);
@@ -160,7 +162,6 @@ public class AdminController {
         String email = owner.getEmail();
 
         System.out.println("Starting deletion for Business: " + tenant.getTenantName());
-
 
         tenant.setUserId(null);
         tenantRepository.save(tenant);
@@ -174,7 +175,8 @@ public class AdminController {
         tenantRepository.deleteById(tenantId);
 
         try {
-            emailService.sendEmail(email, "Account Deleted", "Your business and all data have been permanently deleted.");
+            emailService.sendEmail(email, "Account Deleted",
+                    "Your business and all data have been permanently deleted.");
         } catch (Exception e) {
             System.err.println("Could not send deletion email: " + e.getMessage());
         }

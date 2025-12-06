@@ -6,7 +6,6 @@ import com.mydeseret.mydeseret.mapper.SaleMapper;
 import com.mydeseret.mydeseret.model.Sale;
 import com.mydeseret.mydeseret.service.SaleService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -60,14 +59,13 @@ public class SaleController {
     public ResponseEntity<Page<SaleResponseDto>> getAllSales(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
-            // NEW FILTERS
             @RequestParam(required = false) LocalDate startDate,
             @RequestParam(required = false) LocalDate endDate,
             @RequestParam(required = false) BigDecimal minAmount) {
         
         Pageable pageable = PageRequest.of(page, size, Sort.by("saleDate").descending());
         
-        // Converts LocalDate to LocalDateTime for query
+        // Will need to Converts LocalDate to LocalDateTime for query
         LocalDateTime start = startDate != null ? startDate.atStartOfDay() : null;
         LocalDateTime end = endDate != null ? endDate.atTime(23, 59, 59) : null;
 

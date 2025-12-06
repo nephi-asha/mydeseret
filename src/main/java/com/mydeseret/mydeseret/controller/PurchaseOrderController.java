@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/purchase-orders")
+@io.swagger.v3.oas.annotations.tags.Tag(name = "Purchase Orders", description = "Manage supplier orders")
 public class PurchaseOrderController {
 
     @Autowired
@@ -22,12 +23,14 @@ public class PurchaseOrderController {
     }
 
     @PutMapping("/{id}/receive")
+    @PostMapping("/{id}/receive") 
     @PreAuthorize("hasAuthority('PURCHASE_ORDER_UPDATE')")
     public ResponseEntity<PurchaseOrder> receiveGoods(@PathVariable Long id) {
         return ResponseEntity.ok(poService.receiveGoods(id));
     }
 
     @PutMapping("/{id}/pay")
+    @PostMapping("/{id}/pay") 
     @PreAuthorize("hasAuthority('PURCHASE_ORDER_PAY')")
     public ResponseEntity<PurchaseOrder> payVendor(@PathVariable Long id) {
         return ResponseEntity.ok(poService.payVendor(id));

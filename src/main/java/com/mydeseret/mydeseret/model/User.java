@@ -68,33 +68,32 @@ public class User {
     @NotNull
     private boolean isActive = false;
 
-    @Column(name =  "approval_token")
+    @Column(name = "approval_token")
     private String approvalToken;
+
+    @Column(name = "mfa_secret")
+    private String mfaSecret;
+
+    @Column(name = "mfa_enabled")
+    private boolean mfaEnabled = false;
 
     @Column(name = "reset_token")
     private String resetToken;
 
     @Column(name = "reset_token_expiry")
-    private LocalDateTime resetTokenExpiry;    
+    private LocalDateTime resetTokenExpiry;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "tenant_id")
     private Tenant tenant;
 
     @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(
-        name = "user_roles",
-        joinColumns = @JoinColumn(name = "user_id"),
-        inverseJoinColumns = @JoinColumn(name = "role_id")
-        )
+    @JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles = new HashSet<>();
 
     @ElementCollection(fetch = FetchType.EAGER)
     @Enumerated(EnumType.STRING)
-    @CollectionTable(
-        name = "user_custom_permissions",
-        joinColumns = @JoinColumn(name = "user_id")
-    )
+    @CollectionTable(name = "user_custom_permissions", joinColumns = @JoinColumn(name = "user_id"))
     @Column(name = "permission")
     @NotNull
     private Set<ApplicationPermission> customPermissions = new HashSet<>();
@@ -179,10 +178,37 @@ public class User {
         this.approvalToken = approvalToken;
     }
 
-    public String getResetToken() { return resetToken; }
-    public void setResetToken(String resetToken) { this.resetToken = resetToken; }
-    public LocalDateTime getResetTokenExpiry() { return resetTokenExpiry; }
-    public void setResetTokenExpiry(LocalDateTime resetTokenExpiry) { this.resetTokenExpiry = resetTokenExpiry; }
+    public String getMfaSecret() {
+        return mfaSecret;
+    }
+
+    public void setMfaSecret(String mfaSecret) {
+        this.mfaSecret = mfaSecret;
+    }
+
+    public boolean isMfaEnabled() {
+        return mfaEnabled;
+    }
+
+    public void setMfaEnabled(boolean mfaEnabled) {
+        this.mfaEnabled = mfaEnabled;
+    }
+
+    public String getResetToken() {
+        return resetToken;
+    }
+
+    public void setResetToken(String resetToken) {
+        this.resetToken = resetToken;
+    }
+
+    public LocalDateTime getResetTokenExpiry() {
+        return resetTokenExpiry;
+    }
+
+    public void setResetTokenExpiry(LocalDateTime resetTokenExpiry) {
+        this.resetTokenExpiry = resetTokenExpiry;
+    }
 
     public Tenant getTenant() {
         return tenant;

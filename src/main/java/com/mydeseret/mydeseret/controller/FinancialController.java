@@ -18,21 +18,26 @@ import java.time.LocalDate;
 
 @RestController
 @RequestMapping("/api/v1/reports")
+@io.swagger.v3.oas.annotations.tags.Tag(name = "Financial Reports", description = "PnL and other reports")
 public class FinancialController {
 
-    @Autowired private FinancialService financialService;
-    @Autowired private PdfService pdfService;
+    @Autowired
+    private FinancialService financialService;
+    @Autowired
+    private PdfService pdfService;
 
     // GET /api/v1/reports/pnl?startDate=2025-11-01&endDate=2025-11-30
     @GetMapping("/pnl")
     @PreAuthorize("hasAuthority('FINANCIAL_REPORT_READ')")
     public ResponseEntity<FinancialReportDto> getProfitAndLoss(
-        @RequestParam(required = false) LocalDate startDate,
+            @RequestParam(required = false) LocalDate startDate,
             @RequestParam(required = false) LocalDate endDate) {
 
         // Default to Current Month if no dates provided
-        if (startDate == null) startDate = LocalDate.now().withDayOfMonth(1);
-        if (endDate == null) endDate = LocalDate.now();
+        if (startDate == null)
+            startDate = LocalDate.now().withDayOfMonth(1);
+        if (endDate == null)
+            endDate = LocalDate.now();
 
         return ResponseEntity.ok(financialService.generatePnl(startDate, endDate));
     }
@@ -44,11 +49,13 @@ public class FinancialController {
             @RequestParam(required = false) LocalDate startDate,
             @RequestParam(required = false) LocalDate endDate) {
 
-        if (startDate == null) startDate = LocalDate.now().withDayOfMonth(1);
-        if (endDate == null) endDate = LocalDate.now();
+        if (startDate == null)
+            startDate = LocalDate.now().withDayOfMonth(1);
+        if (endDate == null)
+            endDate = LocalDate.now();
 
         FinancialReportDto report = financialService.generatePnl(startDate, endDate);
-        
+
         String businessName = TenantContext.getCurrentTenant();
         if (businessName != null) {
             // Converts "deseret_bakery" to "Deseret Bakery"
@@ -65,5 +72,5 @@ public class FinancialController {
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=pnl_report.pdf")
                 .contentType(MediaType.APPLICATION_PDF)
                 .body(pdfBytes);
-    }    
+    }
 }

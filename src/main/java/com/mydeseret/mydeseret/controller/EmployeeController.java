@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/employees")
+@io.swagger.v3.oas.annotations.tags.Tag(name = "Employees", description = "Manage staff and permissions")
 public class EmployeeController {
 
     @Autowired
@@ -25,10 +26,9 @@ public class EmployeeController {
     @GetMapping
     @PreAuthorize("hasAuthority('EMPLOYEE_READ')")
     public ResponseEntity<Page<EmployeeResponseDto>> getEmployees(
-        @RequestParam(defaultValue = "0") int page,
-        @RequestParam(defaultValue = "10") int size,
-        @RequestParam(defaultValue = "employeeId") String sortBy
-    ){
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "employeeId") String sortBy) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
         return ResponseEntity.ok(employeeService.getEmployees(pageable));
     }
@@ -41,11 +41,13 @@ public class EmployeeController {
 
     @PutMapping("/{id}")
     @PreAuthorize("hasAuthority('EMPLOYEE_UPDATE')")
-    public ResponseEntity<EmployeeResponseDto> updateEmployee(@PathVariable Long id, @Valid @RequestBody EmployeeRequestDto request) {
+    public ResponseEntity<EmployeeResponseDto> updateEmployee(@PathVariable Long id,
+            @Valid @RequestBody EmployeeRequestDto request) {
         return ResponseEntity.ok(employeeService.updateEmployee(id, request));
     }
 
     @DeleteMapping("/{id}")
+    @PostMapping("/{id}/terminate") 
     @PreAuthorize("hasAuthority('EMPLOYEE_DELETE')")
     public ResponseEntity<Void> terminateEmployee(@PathVariable Long id) {
         employeeService.terminateEmployee(id);

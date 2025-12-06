@@ -35,26 +35,20 @@ public class ItemController {
     @Autowired
     private StorageService storageService;
 
-    @Operation(
-        summary = "Create a new Item (JSON only)",
-        description = "Adds a new item without an image."
-    )
+    @Operation(summary = "Create a new Item (JSON only)", description = "Adds a new item without an image.")
     @PostMapping
     @PreAuthorize("hasAuthority('ITEM_CREATE')")
     public ResponseEntity<ItemResponseDto> createItem(@Valid @RequestBody ItemRequestDto request) {
         return ResponseEntity.ok(itemService.createItem(request));
     }
 
-    @Operation(
-        summary = "Create Item with Image",
-        description = "Uploads an image to S3 and creates the item record. Request must be 'multipart/form-data'."
-    )
+    @Operation(summary = "Create Item with Image", description = "Uploads an image to S3 and creates the item record. Request must be 'multipart/form-data'.")
     @PostMapping(value = "/with-image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasAuthority('ITEM_CREATE')")
     public ResponseEntity<ItemResponseDto> createItemWithImage(
             @RequestPart("data") @Valid ItemRequestDto request,
             @RequestPart(value = "image", required = false) MultipartFile image) {
-        
+
         ItemResponseDto newItem = itemService.createItem(request);
 
         if (image != null && !image.isEmpty()) {
@@ -77,9 +71,8 @@ public class ItemController {
             @RequestParam(required = false) String search,
             @RequestParam(required = false) BigDecimal minPrice,
             @RequestParam(required = false) BigDecimal maxPrice,
-            @RequestParam(required = false) Long categoryId
-            ) {
-        
+            @RequestParam(required = false) Long categoryId) {
+
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
         return ResponseEntity.ok(itemService.getAllItems(search, minPrice, maxPrice, categoryId, pageable));
     }
@@ -88,13 +81,14 @@ public class ItemController {
     @PutMapping("/{id}")
     @PreAuthorize("hasAuthority('ITEM_UPDATE')")
     public ResponseEntity<ItemResponseDto> updateItem(
-            @PathVariable Long id, 
+            @PathVariable Long id,
             @Valid @RequestBody ItemRequestDto request) {
         return ResponseEntity.ok(itemService.updateItem(id, request));
     }
 
     @Operation(summary = "Delete (Deactivate) an Item")
     @DeleteMapping("/{id}")
+    @PostMapping("/{id}/deactivate")
     @PreAuthorize("hasAuthority('ITEM_DELETE')")
     public ResponseEntity<Void> deleteItem(@PathVariable Long id) {
         itemService.deleteItem(id);

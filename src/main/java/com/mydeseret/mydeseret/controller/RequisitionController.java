@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/requisitions")
+@io.swagger.v3.oas.annotations.tags.Tag(name = "Requisitions", description = "Internal stock requests")
 public class RequisitionController {
 
     @Autowired
@@ -25,12 +26,14 @@ public class RequisitionController {
     }
 
     @PutMapping("/{id}/approve")
+    @PostMapping("/{id}/approve") 
     @PreAuthorize("hasAuthority('REQUISITION_APPROVE')")
     public ResponseEntity<RequisitionResponseDto> approve(@PathVariable Long id) {
         return ResponseEntity.ok(requisitionService.approveRequisition(id));
     }
 
     @PutMapping("/{id}/reject")
+    @PostMapping("/{id}/reject") 
     @PreAuthorize("hasAuthority('REQUISITION_APPROVE')")
     public ResponseEntity<RequisitionResponseDto> reject(@PathVariable Long id, @RequestParam String reason) {
         return ResponseEntity.ok(requisitionService.rejectRequisition(id, reason));

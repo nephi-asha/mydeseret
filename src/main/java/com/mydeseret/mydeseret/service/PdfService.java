@@ -36,8 +36,8 @@ public class PdfService {
             // Date Range
             Font normalFont = FontFactory.getFont(FontFactory.HELVETICA, 12, Color.BLACK);
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM dd, yyyy");
-            String dateRange = "Period: " + report.getStartDate().format(formatter) + 
-                               " to " + report.getEndDate().format(formatter);
+            String dateRange = "Period: " + report.getStartDate().format(formatter) +
+                    " to " + report.getEndDate().format(formatter);
             document.add(new Paragraph(dateRange, normalFont));
             document.add(new Paragraph("Generated on: " + java.time.LocalDate.now().format(formatter), normalFont));
             document.add(Chunk.NEWLINE);
@@ -45,32 +45,35 @@ public class PdfService {
             // Create Table
             PdfPTable table = new PdfPTable(2);
             table.setWidthPercentage(100);
-            table.setWidths(new float[]{3f, 1f});
+            table.setWidths(new float[] { 3f, 1f });
             table.setSpacingBefore(10);
 
             // Rows
             addSectionHeader(table, "REVENUE");
             addTableRow(table, "Total Sales", formatCurrency(report.getTotalRevenue()), false);
-            
+
             addSectionHeader(table, "COST OF GOODS SOLD");
-            addTableRow(table, "Cost of Materials & Production", "(" + formatCurrency(report.getCostOfGoodsSold()) + ")", false);
-            
+            addTableRow(table, "Cost of Materials & Production",
+                    "(" + formatCurrency(report.getCostOfGoodsSold()) + ")", false);
+
             // Gross Profit Calculation Row
             addTotalRow(table, "GROSS PROFIT", formatCurrency(report.getGrossProfit()), Color.LIGHT_GRAY);
 
             addSectionHeader(table, "OPERATING EXPENSES");
-            addTableRow(table, "Total Expenses (Rent, Payroll, etc.)", "(" + formatCurrency(report.getTotalExpenses()) + ")", false);
+            addTableRow(table, "Total Expenses (Rent, Payroll, etc.)",
+                    "(" + formatCurrency(report.getTotalExpenses()) + ")", false);
 
             // Net Profit
-            Color profitColor = report.getNetProfit().doubleValue() >= 0 ? new Color(220, 255, 220) : new Color(255, 220, 220);
+            Color profitColor = report.getNetProfit().doubleValue() >= 0 ? new Color(220, 255, 220)
+                    : new Color(255, 220, 220);
             addTotalRow(table, "NET PROFIT", formatCurrency(report.getNetProfit()), profitColor);
 
             // Margin
             document.add(table);
             document.add(Chunk.NEWLINE);
-            
-            Paragraph margin = new Paragraph("Net Profit Margin: " + report.getProfitMargin(), 
-                FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12));
+
+            Paragraph margin = new Paragraph("Net Profit Margin: " + report.getProfitMargin(),
+                    FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12));
             margin.setAlignment(Element.ALIGN_RIGHT);
             document.add(margin);
 
@@ -84,7 +87,8 @@ public class PdfService {
     // --- Helpers ---
 
     private void addSectionHeader(PdfPTable table, String title) {
-        PdfPCell cell = new PdfPCell(new Phrase(title, FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12, Color.WHITE)));
+        PdfPCell cell = new PdfPCell(
+                new Phrase(title, FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12, Color.WHITE)));
         cell.setBackgroundColor(Color.DARK_GRAY);
         cell.setColspan(2);
         cell.setPadding(5);
@@ -92,12 +96,13 @@ public class PdfService {
     }
 
     private void addTableRow(PdfPTable table, String label, String value, boolean isBold) {
-        Font font = isBold ? FontFactory.getFont(FontFactory.HELVETICA_BOLD) : FontFactory.getFont(FontFactory.HELVETICA);
-        
+        Font font = isBold ? FontFactory.getFont(FontFactory.HELVETICA_BOLD)
+                : FontFactory.getFont(FontFactory.HELVETICA);
+
         PdfPCell labelCell = new PdfPCell(new Phrase(label, font));
         labelCell.setPadding(8);
         labelCell.setBorderWidthBottom(0.5f);
-        
+
         PdfPCell valueCell = new PdfPCell(new Phrase(value, font));
         valueCell.setPadding(8);
         valueCell.setHorizontalAlignment(Element.ALIGN_RIGHT);
@@ -109,11 +114,11 @@ public class PdfService {
 
     private void addTotalRow(PdfPTable table, String label, String value, Color bgColor) {
         Font font = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12);
-        
+
         PdfPCell labelCell = new PdfPCell(new Phrase(label, font));
         labelCell.setBackgroundColor(bgColor);
         labelCell.setPadding(10);
-        
+
         PdfPCell valueCell = new PdfPCell(new Phrase(value, font));
         valueCell.setBackgroundColor(bgColor);
         valueCell.setPadding(10);
@@ -124,7 +129,9 @@ public class PdfService {
     }
 
     private String formatCurrency(java.math.BigDecimal amount) {
-        if (amount == null) return "0.00";
-        return NumberFormat.getCurrencyInstance(new Locale("en", "NG")).format(amount).replace("NGN", "₦");
+        if (amount == null)
+            return "0.00";
+        return NumberFormat.getCurrencyInstance(new Locale.Builder().setLanguage("en").setRegion("NG").build())
+                .format(amount).replace("NGN", "₦");
     }
 }

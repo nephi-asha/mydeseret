@@ -35,20 +35,19 @@ public class UserService {
     EmailService emailService;
     JwtUtil jwtUtil;
     CustomUserDetailsService customUserDetailsService;
-    
+
     @Value("${app.frontend.url}")
     private String frontendUrl;
 
     @Autowired
     public UserService(
-        UserRepository userRepository,
-        PasswordEncoder passwordEncoder,
-        TenantRepository tenantRepository,
-        RoleRepository roleRepository,
-        EmailService emailService,
-        JwtUtil jwtUtil,
-        CustomUserDetailsService customUserDetailsService
-    ) {
+            UserRepository userRepository,
+            PasswordEncoder passwordEncoder,
+            TenantRepository tenantRepository,
+            RoleRepository roleRepository,
+            EmailService emailService,
+            JwtUtil jwtUtil,
+            CustomUserDetailsService customUserDetailsService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.tenantRepository = tenantRepository;
@@ -62,8 +61,8 @@ public class UserService {
     public UserResponseDto registerUser(UserRequestDto userRequestDto) {
         Tenant newTenant = new Tenant();
         newTenant.setTenantName(userRequestDto.getBusinessName());
-        newTenant.setSchemaName(userRequestDto.getBusinessName().toLowerCase().replaceAll("\\s+","_"));
-        
+        newTenant.setSchemaName(userRequestDto.getBusinessName().toLowerCase().replaceAll("\\s+", "_"));
+
         if (userRequestDto.getTimeZone() != null && !userRequestDto.getTimeZone().isEmpty()) {
             newTenant.setTimeZone(userRequestDto.getTimeZone());
         } else {
@@ -76,7 +75,7 @@ public class UserService {
         user.setTenant(newTenant);
 
         Role ownerRole = roleRepository.findByRoleName("OWNER")
-            .orElseThrow(() -> new RuntimeException("Error: Owner Role not found in DB. Database not seeded?"));
+                .orElseThrow(() -> new RuntimeException("Error: Owner Role not found in DB. Database not seeded?"));
         user.setRoles(null);
         user.setRoles(Collections.singleton(ownerRole));
 
@@ -87,11 +86,11 @@ public class UserService {
 
         String subject = "Welcome to MyDeseret Technologies - Awaiting Approval";
         String body = "Hello " + user.getFirstName() + ",\n\n" +
-                    "Thank you for registering '" + user.getBusinessName() + "'.\n" +
-                    "Your account is currently PENDING APPROVAL by our administrators.\n" +
-                    "You will receive another email once your account is active.\n\n" +
-                    "Best Regards,\nMyDeseret Technologies Team";
-        
+                "Thank you for registering '" + user.getBusinessName() + "'.\n" +
+                "Your account is currently PENDING APPROVAL by our administrators.\n" +
+                "You will receive another email once your account is active.\n\n" +
+                "Best Regards,\nMyDeseret Technologies Team";
+
         emailService.sendEmail(user.getEmail(), subject, body);
         return UserMapper.toResponseDto(user);
     }
@@ -108,12 +107,37 @@ public class UserService {
             throw new RuntimeException("Account is not active yet. Please wait for approval.");
         }
 
+        // MFA Check
+        if (user.isMfaEnabled()) {
+            return new LoginResponseDto(null, user.getEmail(), null, "MFA_REQUIRED", "Please provide your 2FA code.");
+        }
+
         UserDetails userDetails = customUserDetailsService.loadUserByUsername(user.getEmail());
         String token = jwtUtil.generateToken(userDetails);
 
         String roleName = user.getRoles().isEmpty() ? "USER" : user.getRoles().iterator().next().getRoleName();
-        
-        return new LoginResponseDto(token, user.getEmail(), roleName);
+
+        return new LoginResponseDto(token, user.getEmail(), roleName, "SUCCESS", "Login successful");
+    }
+
+    public LoginResponseDto verifyTwoFactorLogin(String email, String code) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (!user.isMfaEnabled()) {
+            throw new RuntimeException("MFA is not enabled for this user.");
+        }
+
+        org.jboss.aerogear.security.otp.Totp totp = new org.jboss.aerogear.security.otp.Totp(user.getMfaSecret());
+        if (!totp.verify(code)) {
+            throw new BadCredentialsException("Invalid 2FA code.");
+        }
+
+        UserDetails userDetails = customUserDetailsService.loadUserByUsername(user.getEmail());
+        String token = jwtUtil.generateToken(userDetails);
+        String roleName = user.getRoles().isEmpty() ? "USER" : user.getRoles().iterator().next().getRoleName();
+
+        return new LoginResponseDto(token, user.getEmail(), roleName, "SUCCESS", "Login successful");
     }
 
     // FORGOT PASSWORD
@@ -123,19 +147,19 @@ public class UserService {
                 .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
 
         String token = UUID.randomUUID().toString();
-        
-        // token is saved  to dDB with 15 minute expiry
+
+        // token is saved to dDB with 15 minute expiry
         user.setResetToken(token);
         user.setResetTokenExpiry(LocalDateTime.now().plusMinutes(15));
         userRepository.save(user);
 
         String resetLink = frontendUrl + "/reset-password?token=" + token;
         String body = "Hello " + user.getFirstName() + ",\n\n" +
-                      "You requested a password reset.\n" +
-                      "Click the link below to reset it (Valid for 15 minutes):\n\n" +
-                      resetLink + "\n\n" +
-                      "If you did not request this, please ignore this email.";
-        
+                "You requested a password reset.\n" +
+                "Click the link below to reset it (Valid for 15 minutes):\n\n" +
+                resetLink + "\n\n" +
+                "If you did not request this, please ignore this email.";
+
         emailService.sendEmail(user.getEmail(), "Password Reset Request", body);
     }
 
@@ -149,12 +173,15 @@ public class UserService {
         }
 
         user.setPasswordHash(passwordEncoder.encode(newPassword));
-        
+
         // Token gets cleared so it can't be used again
         user.setResetToken(null);
         user.setResetTokenExpiry(null);
-        
-        userRepository.save(user);
-    }    
 
+        userRepository.save(user);
+    }
+
+    public java.util.Optional<User> findUserByEmail(String email) {
+        return userRepository.findByEmail(email);
+    }
 }

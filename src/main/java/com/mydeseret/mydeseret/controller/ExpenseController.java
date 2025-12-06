@@ -13,6 +13,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/expenses")
+@io.swagger.v3.oas.annotations.tags.Tag(name = "Expenses", description = "Track business expenses")
 public class ExpenseController {
 
     @Autowired
@@ -32,7 +33,8 @@ public class ExpenseController {
 
     @PutMapping("/{id}")
     @PreAuthorize("hasAuthority('EXPENSE_UPDATE')")
-    public ResponseEntity<ExpenseResponseDto> updateExpense(@PathVariable Long id, @Valid @RequestBody ExpenseRequestDto request) {
+    public ResponseEntity<ExpenseResponseDto> updateExpense(@PathVariable Long id,
+            @Valid @RequestBody ExpenseRequestDto request) {
         return ResponseEntity.ok(expenseService.updateExpense(id, request));
     }
 

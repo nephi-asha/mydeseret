@@ -14,8 +14,12 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class SupplierService {
 
-    @Autowired private SupplierRepository supplierRepository;
-    @Autowired private SupplierMapper supplierMapper;
+    @Autowired
+    private SupplierRepository supplierRepository;
+    @Autowired
+    private SupplierMapper supplierMapper;
+    @Autowired
+    private com.mydeseret.mydeseret.repository.PurchaseOrderRepository purchaseOrderRepository;
 
     @Transactional
     public SupplierResponseDto createSupplier(SupplierRequestDto request) {
@@ -44,7 +48,18 @@ public class SupplierService {
 
     @Transactional
     public void deleteSupplier(Long id) {
-        if (!supplierRepository.existsById(id)) throw new RuntimeException("Supplier not found");
-        supplierRepository.deleteById(id);
+        Supplier supplier = supplierRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Supplier not found"));
+
+        if (purchaseOrderRepository.existsBySupplier_Id(id)) {
+            
+            supplier.setActive(false);
+            supplierRepository.save(supplier);
+            System.out.println("Supplier " + id + " was SOFT DELETED due to existing purchase orders.");
+        } else {
+            
+            supplierRepository.delete(supplier);
+            System.out.println("Supplier " + id + " was HARD DELETED (No purchase orders found).");
+        }
     }
 }

@@ -10,8 +10,10 @@ It provides a complete suite of modules including Inventory, Manufacturing, Sale
 
   * **Core Framework:** Java 25, Spring Boot 3.4
   * **Database:** PostgreSQL 17 (Schema-Based Multi-Tenancy)
-  * **Security:** Spring Security 6, JWT (Stateless), Role-Based Access Control (RBAC)
-  * **Persistence:** Spring Data JPA (Hibernate 6)
+  * **Security:** Spring Security 6, JWT (Stateless), RBAC, **2FA (Aerogear OTP)**
+  * **Persistence:** Spring Data JPA (Hibernate 6), **Redis (Caching)**
+  * **Messaging:** **RabbitMQ (Asynchronous Processing)**
+  * **Resilience:** **Resilience4j (Circuit Breakers)**
   * **Migration:** Flyway (Automated Schema Provisioning)
   * **Documentation:** OpenAPI 3 (Swagger UI)
   * **Testing/Tools:** Maven, Lombok
@@ -65,6 +67,18 @@ This application uses a **Schema-per-Tenant** strategy for maximum data security
   * **Payroll Processing:** Monthly payroll generation and payment processing (linked to Expenses).
   * **Task Management:** Assign tasks to employees with priorities and due dates.
 
+### 7\. Advanced Analytics & Reporting
+
+  * **Real-Time Dashboards:** Track Top Selling Items, Revenue Trends, and Profitability.
+  * **Asynchronous PDF Generation:** Generate complex reports (e.g., P&L) in the background using **RabbitMQ** to avoid blocking the UI.
+  * **AI Integration:** (Optional) AI-driven insights for inventory optimization.
+
+### 8\. Security & Compliance
+
+  * **Two-Factor Authentication (2FA):** Secure user accounts with TOTP (Google Authenticator).
+  * **Activity Logging:** Comprehensive audit trails for all critical actions.
+  * **Rate Limiting:** Protect APIs from abuse using Redis-backed rate limiting.
+
 -----
 
 ## 🛠️ Getting Started
@@ -99,6 +113,33 @@ JWT_SECRET=YOUR_LONG_SECURE_BASE64_STRING
 # Email Settings (For Notifications)
 MAIL_USERNAME=your-email@gmail.com
 MAIL_PASSWORD=your-app-password
+
+# Redis Configuration
+REDIS_HOST=localhost
+REDIS_PORT=6379
+
+# RabbitMQ Configuration
+SPRING_RABBITMQ_HOST=localhost
+SPRING_RABBITMQ_PORT=5672
+RABBITMQ_USERNAME=guest
+RABBITMQ_PASSWORD=guest
+
+# AWS S3 (For File Uploads)
+AWS_ACCESS_KEY_ID=your_access_key
+AWS_SECRET_ACCESS_KEY=your_secret_key
+AWS_REGION=us-east-1
+AWS_S3_BUCKET_NAME=your-bucket-name
+
+# AI Integration
+OPENAI_API_KEY=your_openai_key
+
+# Super Admin Seeding (Required for first run)
+SUPER_ADMIN_EMAIL=admin@mydeseret.com
+SUPER_ADMIN_PASSWORD=secure_admin_password
+# Optional Super Admin Overrides
+# SUPER_ADMIN_FIRST_NAME=Nephi
+# SUPER_ADMIN_LAST_NAME=Asha
+# SUPER_ADMIN_USERNAME=ashanephi
 ```
 
 ### 3\. Installation

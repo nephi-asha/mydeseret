@@ -1,52 +1,65 @@
 package com.mydeseret.mydeseret.config;
 
-// import org.springframework.amqp.core.*;
-// import org.springframework.amqp.rabbit.connection.ConnectionFactory;
-// import org.springframework.amqp.rabbit.core.RabbitTemplate;
-// import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
-// import org.springframework.context.annotation.Bean;
-// import org.springframework.context.annotation.Configuration;
+import org.springframework.amqp.core.*;
+import org.springframework.amqp.rabbit.connection.ConnectionFactory;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
+import org.springframework.amqp.support.converter.MessageConverter;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
-// @Configuration
+@Configuration
 public class RabbitMQConfig {
 
-    // public static final String EXCHANGE_SALES = "sales.exchange";
-    // public static final String QUEUE_INVENTORY = "inventory.queue";
-    // public static final String QUEUE_FINANCE = "finance.queue";
-    // public static final String QUEUE_NOTIFICATION = "notification.queue";
+    public static final String EXCHANGE_INTERNAL = "internal.exchange";
+    public static final String QUEUE_EMAIL = "email.queue";
+    public static final String ROUTING_KEY_EMAIL = "email.routing.key";
 
-    // @Bean
-    // public TopicExchange salesExchange() {
-    //     return new TopicExchange(EXCHANGE_SALES);
-    // }
+    @org.springframework.beans.factory.annotation.Value("${app.rabbitmq.queue.reports}")
+    private String reportQueueName;
 
-    // @Bean public Queue inventoryQueue() { return new Queue(QUEUE_INVENTORY, true); }
-    // @Bean public Queue financeQueue() { return new Queue(QUEUE_FINANCE, true); }
-    // @Bean public Queue notificationQueue() { return new Queue(QUEUE_NOTIFICATION, true); }
+    @org.springframework.beans.factory.annotation.Value("${app.rabbitmq.routingkey.reports}")
+    private String reportRoutingKey;
 
-    // @Bean
-    // public Binding bindingInventory(Queue inventoryQueue, TopicExchange salesExchange) {
-    //     return BindingBuilder.bind(inventoryQueue).to(salesExchange).with("sale.created");
-    // }
-    // @Bean
-    // public Binding bindingFinance(Queue financeQueue, TopicExchange salesExchange) {
-    //     return BindingBuilder.bind(financeQueue).to(salesExchange).with("sale.created");
-    // }
-    // @Bean
-    // public Binding bindingNotification(Queue notificationQueue, TopicExchange salesExchange) {
-    //     return BindingBuilder.bind(notificationQueue).to(salesExchange).with("sale.created");
-    // }
+    @Bean
+    public TopicExchange internalExchange() {
+        return new TopicExchange(EXCHANGE_INTERNAL);
+    }
 
-    // @Bean
-    // public Jackson2JsonMessageConverter jsonMessageConverter() {
-    //     return new Jackson2JsonMessageConverter();
-    // }
+    @Bean
+    public Queue emailQueue() {
+        return new Queue(QUEUE_EMAIL, true);
+    }
 
-    // @Bean
-    // public RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory) {
-    //     RabbitTemplate template = new RabbitTemplate(connectionFactory);
-    //     template.setMessageConverter(jsonMessageConverter());
-    //     return template;
-    // }
-    
+    @Bean
+    public Queue stockAlertsQueue() {
+        return new Queue("stock-alerts", true);
+    }
+
+    @Bean
+    public Queue reportQueue() {
+        return new Queue(reportQueueName, true);
+    }
+
+    @Bean
+    public Binding bindingEmail(Queue emailQueue, TopicExchange internalExchange) {
+        return BindingBuilder.bind(emailQueue).to(internalExchange).with(ROUTING_KEY_EMAIL);
+    }
+
+    @Bean
+    public Binding bindingReport(Queue reportQueue, TopicExchange internalExchange) {
+        return BindingBuilder.bind(reportQueue).to(internalExchange).with(reportRoutingKey);
+    }
+
+    @Bean
+    public MessageConverter jsonMessageConverter() {
+        return new Jackson2JsonMessageConverter();
+    }
+
+    @Bean
+    public RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory) {
+        RabbitTemplate template = new RabbitTemplate(connectionFactory);
+        template.setMessageConverter(jsonMessageConverter());
+        return template;
+    }
 }

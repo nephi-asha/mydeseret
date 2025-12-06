@@ -24,7 +24,7 @@ public class DailyJobService {
     @Autowired private EmailService emailService;
     @Autowired private InventoryService inventoryService;
 
-    // 1. LOW STOCK ALERT: Run every hour at minute 0 (e.g., 10:00, 11:00)
+    // LOW STOCK ALERT: Run every hour at minute 0 (e.g., 10:00, 11:00)
     @Scheduled(cron = "0 0 * * * ?")
     public void checkLowStockLevels() {
         List<Tenant> tenants = tenantRepository.findAll();

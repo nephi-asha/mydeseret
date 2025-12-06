@@ -11,20 +11,36 @@ import com.mydeseret.mydeseret.model.Sale;
 
 @Repository
 public interface SaleRepository extends JpaRepository<Sale, Long>, JpaSpecificationExecutor<Sale> {
-    
-    // Total Revenue (Selling Price)
-    @Query("SELECT COALESCE(SUM(s.totalAmount), 0) FROM Sale s " +
-           "WHERE s.status = 'COMPLETED' " +
-           "AND s.saleDate BETWEEN :startDate AND :endDate")
-    BigDecimal calculateTotalRevenue(@Param("startDate") LocalDateTime startDate, 
-                                     @Param("endDate") LocalDateTime endDate);
 
-    // Total COGS (Cost Price)
-    // This Joins Sale -> SaleItems to sum (costPrice * quantity)
-    @Query("SELECT COALESCE(SUM(i.costPrice * i.quantity), 0) FROM Sale s " +
-           "JOIN s.items i " +
-           "WHERE s.status = 'COMPLETED' " +
-           "AND s.saleDate BETWEEN :startDate AND :endDate")
-    BigDecimal calculateTotalCOGS(@Param("startDate") LocalDateTime startDate,
-                                  @Param("endDate") LocalDateTime endDate);
+       // Total Revenue (Selling Price)
+       @Query("SELECT COALESCE(SUM(s.totalAmount), 0) FROM Sale s " +
+                     "WHERE s.status = 'COMPLETED' " +
+                     "AND s.saleDate BETWEEN :startDate AND :endDate")
+       BigDecimal calculateTotalRevenue(@Param("startDate") LocalDateTime startDate,
+                     @Param("endDate") LocalDateTime endDate);
+
+       // Total COGS (Cost Price)
+       // This Joins Sale -> SaleItems to sum (costPrice * quantity)
+       @Query("SELECT COALESCE(SUM(i.costPrice * i.quantity), 0) FROM Sale s " +
+                     "JOIN s.items i " +
+                     "WHERE s.status = 'COMPLETED' " +
+                     "AND s.saleDate BETWEEN :startDate AND :endDate")
+       BigDecimal calculateTotalCOGS(@Param("startDate") LocalDateTime startDate,
+                     @Param("endDate") LocalDateTime endDate);
+
+       // Top Selling Items
+       @Query("SELECT new com.mydeseret.mydeseret.dto.TopItemDto(i.item.name, SUM(i.quantity), SUM(i.subTotal)) " +
+                     "FROM SaleItem i " +
+                     "WHERE i.sale.status = 'COMPLETED' " +
+                     "AND i.sale.saleDate BETWEEN :startDate AND :endDate " +
+                     "GROUP BY i.item.name " +
+                     "ORDER BY SUM(i.subTotal) DESC")
+       java.util.List<com.mydeseret.mydeseret.dto.TopItemDto> findTopSellingItems(
+                     @Param("startDate") LocalDateTime startDate,
+                     @Param("endDate") LocalDateTime endDate,
+                     org.springframework.data.domain.Pageable pageable);
+
+       boolean existsByItems_Item_ItemId(Long itemId);
+
+       boolean existsByCustomer_Id(Long customerId);
 }

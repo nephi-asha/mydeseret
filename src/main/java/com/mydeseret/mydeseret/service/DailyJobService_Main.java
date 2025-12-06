@@ -53,7 +53,7 @@ package com.mydeseret.mydeseret.service;
 //         if (!lowStockItems.isEmpty()) {
 //             StringBuilder body = new StringBuilder();
 //             body.append("The following items are low in stock:\n\n");
-            
+
 //             for (Item item : lowStockItems) {
 //                 body.append("- ").append(item.getName())
 //                     .append(" (Current: ").append(item.getQuantityOnHand())
@@ -76,7 +76,7 @@ package com.mydeseret.mydeseret.service;
 //     @Scheduled(cron = "0 59 23 * * ?", zone = "Africa/Lagos")
 //     public void runEndOfDayClosing() {
 //         System.out.println("Running End of Day Closing...");
-        
+
 //         List<Tenant> tenants = tenantRepository.findAll();
 //         for (Tenant tenant : tenants) {
 //             try {
@@ -98,7 +98,7 @@ package com.mydeseret.mydeseret.service;
 
 //         for (Item item : freshItems) {
 //             int unsoldQty = item.getQuantityOnHand();
-            
+
 //             if (unsoldQty > 0) {
 //                 inventoryService.adjustStock(
 //                     item.getItemId(), 

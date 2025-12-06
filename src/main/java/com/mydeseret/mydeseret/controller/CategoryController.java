@@ -13,6 +13,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/categories")
+@io.swagger.v3.oas.annotations.tags.Tag(name = "Categories", description = "Manage product categories")
 public class CategoryController {
 
     @Autowired
@@ -33,7 +34,8 @@ public class CategoryController {
 
     @PutMapping("/{id}")
     @PreAuthorize("hasAuthority('CATEGORY_UPDATE')")
-    public ResponseEntity<CategoryResponseDto> updateCategory(@PathVariable Long id, @Valid @RequestBody CategoryRequestDto request) {
+    public ResponseEntity<CategoryResponseDto> updateCategory(@PathVariable Long id,
+            @Valid @RequestBody CategoryRequestDto request) {
         return ResponseEntity.ok(categoryService.updateCategory(id, request));
     }
 

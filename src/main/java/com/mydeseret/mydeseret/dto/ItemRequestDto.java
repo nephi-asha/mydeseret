@@ -8,62 +8,41 @@ import java.math.BigDecimal;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
-
 // @Data
 @Schema(description = "Payload for creating or updating an Inventory Item")
 public class ItemRequestDto {
-@Schema(
-        description = "The display name of the item", 
-        example = "Premium White Flour"
-    )
+    @Schema(description = "The display name of the item", example = "Premium White Flour")
     @NotNull(message = "Name is required")
     private String name;
 
-    @Schema(
-        description = "Stock Keeping Unit - Unique identifier for tracking", 
-        example = "RAW-FLR-001"
-    )
+    @Schema(description = "Stock Keeping Unit - Unique identifier for tracking", example = "RAW-FLR-001")
     @NotNull(message = "SKU is required")
     private String sku;
 
-    @Schema(
-        description = "Detailed description of the item", 
-        example = "High-grade flour suitable for pastries and breads"
-    )
+    @Schema(description = "Detailed description of the item", example = "High-grade flour suitable for pastries and breads")
     private String description;
 
-    @Schema(
-        description = "The unit of measurement for this item", 
-        example = "KG", 
-        allowableValues = {"KG", "UNIT", "LITRE", "BOX"}
-    )
+    @Schema(description = "The unit of measurement for this item", example = "KG", allowableValues = { "KG", "UNIT",
+            "LITRE", "BOX" })
     @NotNull(message = "Unit of Measure is required")
     private String unitOfMeasure;
 
-    @Schema(
-        description = "The cost to purchase or produce one unit", 
-        example = "1.50"
-    )
+    @Schema(description = "The cost to purchase or produce one unit", example = "1.50")
     private BigDecimal costPrice;
 
-    @Schema(
-        description = "The price this item is sold at (if applicable)", 
-        example = "0.00"
-    )
+    @Schema(description = "The price this item is sold at (if applicable)", example = "0.00")
     private BigDecimal sellingPrice;
 
-    @Schema(
-        description = "Threshold for low-stock alerts", 
-        example = "50"
-    )
+    @Schema(description = "Threshold for low-stock alerts", example = "50")
     @Min(0)
     private int reorderPoint;
 
-    @Schema(
-        description = "ID of the Category this item belongs to", 
-        example = "1"
-    )
+    @Schema(description = "ID of the Category this item belongs to", example = "1")
     private Long categoryId;
+
+    @Schema(description = "Initial quantity on hand", example = "100")
+    @Min(0)
+    private int quantityOnHand;
 
     public String getName() {
         return name;
@@ -129,5 +108,11 @@ public class ItemRequestDto {
         this.categoryId = categoryId;
     }
 
-    
+    public int getQuantityOnHand() {
+        return quantityOnHand;
+    }
+
+    public void setQuantityOnHand(int quantityOnHand) {
+        this.quantityOnHand = quantityOnHand;
+    }
 }

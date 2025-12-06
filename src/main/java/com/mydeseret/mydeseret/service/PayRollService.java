@@ -71,7 +71,7 @@ public class PayRollService {
         expense.setAmount(net);
         expense.setDescription("Payroll: " + payroll.getEmployee().getUser().getFirstName() + " - " + payroll.getPayPeriod());
         expense.setDate(LocalDate.now());
-        // expense.setCategory("Salaries"); // add categories to expenses
+        expense.setCategory("Salaries");
         
         expenseRepository.save(expense);
 

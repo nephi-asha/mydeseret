@@ -16,6 +16,16 @@ public class FinancialReportDto {
     
     private String profitMargin;
 
+    private BigDecimal totalCOGS;
+
+    public void setTotalCOGS(BigDecimal totalCOGS) {
+        this.totalCOGS = totalCOGS;
+    }
+
+    public BigDecimal getTotalCOGS() {
+        return totalCOGS;
+    }
+
     public LocalDate getStartDate() { return startDate; }
     public void setStartDate(LocalDate startDate) { this.startDate = startDate; }
     public LocalDate getEndDate() { return endDate; }

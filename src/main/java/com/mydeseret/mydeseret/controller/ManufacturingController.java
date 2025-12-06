@@ -18,10 +18,13 @@ import com.mydeseret.mydeseret.mapper.BluePrintMapper;
 
 @RestController
 @RequestMapping("/api/v1/manufacturing")
+@io.swagger.v3.oas.annotations.tags.Tag(name = "Manufacturing", description = "Manage blueprints and production")
 public class ManufacturingController {
 
-    @Autowired private ManufacturingService manufacturingService;
-    @Autowired private BluePrintMapper bluePrintMapper;
+    @Autowired
+    private ManufacturingService manufacturingService;
+    @Autowired
+    private BluePrintMapper bluePrintMapper;
 
     @PostMapping("/BluePrints")
     @PreAuthorize("hasAuthority('BLUEPRINT_CREATE')")
@@ -34,27 +37,26 @@ public class ManufacturingController {
     // @PostMapping("/build/{BluePrintId}")
     // @PreAuthorize("hasAuthority('MANUFACTURING_BUILD')")
     // public ResponseEntity<String> buildProduct(
-    //         @PathVariable Long BluePrintId, 
-    //         @RequestParam(defaultValue = "1") int quantity) {
-        
-    //     return ResponseEntity.ok(manufacturingService.buildProduct(BluePrintId, quantity));
+    // @PathVariable Long BluePrintId,
+    // @RequestParam(defaultValue = "1") int quantity) {
+
+    // return ResponseEntity.ok(manufacturingService.buildProduct(BluePrintId,
+    // quantity));
     // }
     // POST /api/v1/manufacturing/build/{blueprintId}
-    @Operation(
-        summary = "Run Production Batch (Build)",
-        description = "Converts Raw Materials into Finished Goods based on the Blueprint recipe. " +
-                      "Automatically deducts stock and calculates variance (Waste) if 'actuals' are provided."
-    )
+    @Operation(summary = "Run Production Batch (Build)", description = "Converts Raw Materials into Finished Goods based on the Blueprint recipe. "
+            +
+            "Automatically deducts stock and calculates variance (Waste) if 'actuals' are provided.")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Production successful. Inventory updated."),
-        @ApiResponse(responseCode = "400", description = "Insufficient raw materials or invalid input")
+            @ApiResponse(responseCode = "200", description = "Production successful. Inventory updated."),
+            @ApiResponse(responseCode = "400", description = "Insufficient raw materials or invalid input")
     })
     @PostMapping("/build/{blueprintId}")
     @PreAuthorize("hasAuthority('BLUEPRINT_CREATE')")
     public ResponseEntity<String> buildProduct(
-            @PathVariable Long blueprintId, 
+            @PathVariable Long blueprintId,
             @RequestBody BuildRequestDto request) {
-        
+
         return ResponseEntity.ok(manufacturingService.buildProduct(blueprintId, request));
     }
 

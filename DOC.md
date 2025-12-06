@@ -59,6 +59,50 @@ We implemented a **Variance Logic**:
 
 -----
 
+## 6\. Advanced Analytics Module
+
+### Real-Time Insights
+
+*   **Profitability Analysis:** Calculates Net Profit by deducting COGS and Expenses from Revenue.
+*   **Top Selling Items:** Identifies best-performing products based on quantity sold and revenue generated.
+*   **Sales Trends:** Visualizes sales performance over time (Daily, Weekly, Monthly).
+
+## 7\. Asynchronous Reporting (RabbitMQ)
+
+### The Problem
+
+Generating complex PDF reports (like a full year's P&L) can take several seconds. Blocking the HTTP request leads to a poor user experience and potential timeouts.
+
+### The Solution
+
+We implemented an **Asynchronous Event-Driven Architecture**:
+
+1.  **Request:** User requests a report via `POST /api/v1/analytics/reports/generate`.
+2.  **Queue:** The server places a message in the `reports.queue` (RabbitMQ) and returns a `202 Accepted` with a `reportRequestId`.
+3.  **Process:** A background consumer listens to the queue, calculates the data, generates the PDF, and saves it to storage (S3/Local).
+4.  **Notify:** The `ReportRequest` status is updated to `COMPLETED`. The frontend polls (or uses WebSockets) to get the download URL.
+
+## 8\. Two-Factor Authentication (2FA)
+
+### Security Enhancement
+
+*   **Implementation:** Time-Based One-Time Password (TOTP) using `aerogear-otp-java`.
+*   **Flow:**
+    1.  User enables 2FA -> Server generates a Secret Key and QR Code URL.
+    2.  User scans QR code with Google Authenticator.
+    3.  User verifies with a 6-digit code.
+    4.  On subsequent logins, the server requires both Password and TOTP code.
+
+## 9\. Bulk Data Import
+
+### Efficiency for Large Enterprises
+
+*   **Feature:** Allows uploading CSV files to create thousands of items or customers at once.
+*   **Validation:** The system validates every row (e.g., checking for duplicate SKUs) before processing.
+*   **Performance:** Uses batch processing to efficiently insert records into the database.
+
+-----
+
 # Document 2: API Testing Guide & Dummy Data
 
 **Prerequisite:** All requests (except Login/Register) require the header:

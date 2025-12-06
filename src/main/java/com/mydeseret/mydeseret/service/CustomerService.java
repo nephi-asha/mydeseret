@@ -14,8 +14,12 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class CustomerService {
 
-    @Autowired private CustomerRepository customerRepository;
-    @Autowired private CustomerMapper customerMapper;
+    @Autowired
+    private CustomerRepository customerRepository;
+    @Autowired
+    private CustomerMapper customerMapper;
+    @Autowired
+    private com.mydeseret.mydeseret.repository.SaleRepository saleRepository;
 
     @Transactional
     public CustomerResponseDto createCustomer(CustomerRequestDto request) {
@@ -46,9 +50,18 @@ public class CustomerService {
 
     @Transactional
     public void deleteCustomer(Long id) {
-        if (!customerRepository.existsById(id)) {
-             throw new RuntimeException("Customer not found");
+        Customer customer = customerRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Customer not found"));
+
+        if (saleRepository.existsByCustomer_Id(id)) {
+            
+            customer.setActive(false);
+            customerRepository.save(customer);
+            System.out.println("Customer " + id + " was SOFT DELETED due to existing sales.");
+        } else {
+            
+            customerRepository.delete(customer);
+            System.out.println("Customer " + id + " was HARD DELETED (No sales found).");
         }
-        customerRepository.deleteById(id);
     }
 }

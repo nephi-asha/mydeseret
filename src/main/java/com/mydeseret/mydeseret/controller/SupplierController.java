@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/suppliers")
+@io.swagger.v3.oas.annotations.tags.Tag(name = "Suppliers", description = "Manage vendors and contacts")
 public class SupplierController {
 
     @Autowired
@@ -29,9 +30,11 @@ public class SupplierController {
     public ResponseEntity<Page<SupplierResponseDto>> getSuppliers(Pageable pageable) {
         return ResponseEntity.ok(supplierService.getAllSuppliers(pageable));
     }
+
     @PutMapping("/{id}")
     @PreAuthorize("hasAuthority('SUPPLIER_UPDATE')")
-    public ResponseEntity<SupplierResponseDto> updateSupplier(@PathVariable Long id, @Valid @RequestBody SupplierRequestDto request) {
+    public ResponseEntity<SupplierResponseDto> updateSupplier(@PathVariable Long id,
+            @Valid @RequestBody SupplierRequestDto request) {
         return ResponseEntity.ok(supplierService.updateSupplier(id, request));
     }
 

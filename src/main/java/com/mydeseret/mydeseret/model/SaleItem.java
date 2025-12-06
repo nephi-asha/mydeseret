@@ -31,9 +31,9 @@ public class SaleItem {
     private BigDecimal costPrice; 
     
     @Column(name = "sub_total")
-    private BigDecimal subTotal;
+    private BigDecimal subTotal; 
 
-    // Getters and Setters
+    
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public Sale getSale() { return sale; }

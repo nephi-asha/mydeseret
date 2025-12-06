@@ -23,12 +23,15 @@ import java.util.UUID;
 @Service
 public class SaleService {
 
-    @Autowired private SaleRepository saleRepository;
-    @Autowired private ItemRepository itemRepository;
-    @Autowired private CustomerRepository customerRepository;
-    @Autowired private ApplicationEventPublisher eventPublisher;
+    @Autowired
+    private SaleRepository saleRepository;
+    @Autowired
+    private ItemRepository itemRepository;
+    @Autowired
+    private CustomerRepository customerRepository;
+    @Autowired
+    private ApplicationEventPublisher eventPublisher;
     // @Autowired private RabbitTemplate rabbitTemplate;
-
 
     @Transactional
     public Sale createSale(SaleRequestDto request) {
@@ -55,16 +58,20 @@ public class SaleService {
                 throw new RuntimeException("Insufficient stock for: " + item.getName());
             }
 
+            if (!item.isActive()) {
+                throw new RuntimeException("Item is inactive/deleted: " + item.getName());
+            }
+
             SaleItem lineItem = new SaleItem();
             lineItem.setSale(sale);
             lineItem.setItem(item);
             lineItem.setQuantity(itemDto.getQuantity());
             lineItem.setUnitPrice(item.getSellingPrice());
             lineItem.setCostPrice(item.getCostPrice());
-            
+
             BigDecimal lineTotal = item.getSellingPrice().multiply(BigDecimal.valueOf(itemDto.getQuantity()));
             lineItem.setSubTotal(lineTotal);
-            
+
             sale.getItems().add(lineItem);
             grandTotal = grandTotal.add(lineTotal);
         }
@@ -72,7 +79,8 @@ public class SaleService {
         sale.setTotalAmount(grandTotal);
 
         if (request.getPaymentMethod() == PaymentMethod.CREDIT) {
-            if (customer == null) throw new RuntimeException("Cannot sell on CREDIT to a Guest.");
+            if (customer == null)
+                throw new RuntimeException("Cannot sell on CREDIT to a Guest.");
             if (customer.getCurrentDebt().add(grandTotal).compareTo(customer.getCreditLimit()) > 0) {
                 throw new RuntimeException("Credit Limit Exceeded!");
             }
@@ -82,13 +90,13 @@ public class SaleService {
         eventPublisher.publishEvent(new SaleCreatedEvent(this, savedSale));
 
         return savedSale;
-        }
+    }
 
-        public Page<Sale> getAllSales(LocalDateTime start, LocalDateTime end, BigDecimal minAmount, Pageable pageable) {
-            
-            Specification<Sale> spec = Specification.where(SaleSpecification.isWithinDateRange(start, end))
-                                                    .and(SaleSpecification.hasMinAmount(minAmount));
+    public Page<Sale> getAllSales(LocalDateTime start, LocalDateTime end, BigDecimal minAmount, Pageable pageable) {
 
-            return saleRepository.findAll(spec, pageable);
-        }
+        Specification<Sale> spec = Specification.where(SaleSpecification.isWithinDateRange(start, end))
+                .and(SaleSpecification.hasMinAmount(minAmount));
+
+        return saleRepository.findAll(spec, pageable);
+    }
 }

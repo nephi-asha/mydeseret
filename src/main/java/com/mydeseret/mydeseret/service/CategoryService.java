@@ -19,9 +19,14 @@ import java.util.stream.Collectors;
 @Service
 public class CategoryService {
 
-    @Autowired private CategoryRepository categoryRepository;
-    @Autowired private UserRepository userRepository;
-    @Autowired private CategoryMapper categoryMapper;
+    @Autowired
+    private CategoryRepository categoryRepository;
+    @Autowired
+    private UserRepository userRepository;
+    @Autowired
+    private CategoryMapper categoryMapper;
+    @Autowired
+    private com.mydeseret.mydeseret.repository.ItemRepository itemRepository;
 
     private User getAuthenticatedUser() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -49,20 +54,27 @@ public class CategoryService {
     public CategoryResponseDto updateCategory(Long id, CategoryRequestDto request) {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Category not found"));
-        
+
         category.setName(request.getName());
         category.setDescription(request.getDescription());
-        
+
         return categoryMapper.toResponseDto(categoryRepository.save(category));
     }
 
     @Transactional
     public void deleteCategory(Long id) {
-        // Database constraints will fail if items are linked to this category.
-        // i would have to first check for linked items
-        if (!categoryRepository.existsById(id)) {
-             throw new RuntimeException("Category not found");
+        Category category = categoryRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Category not found"));
+
+        if (itemRepository.existsByCategory_CategoryId(id)) {
+            
+            category.setActive(false);
+            categoryRepository.save(category);
+            System.out.println("Category " + id + " was SOFT DELETED due to existing items.");
+        } else {
+            
+            categoryRepository.delete(category);
+            System.out.println("Category " + id + " was HARD DELETED (No items found).");
         }
-        categoryRepository.deleteById(id);
     }
 }

@@ -8,6 +8,7 @@ import com.mydeseret.mydeseret.model.Item;
 import com.mydeseret.mydeseret.model.User;
 import com.mydeseret.mydeseret.repository.CategoryRepository;
 import com.mydeseret.mydeseret.repository.ItemRepository;
+import com.mydeseret.mydeseret.repository.SaleRepository;
 import com.mydeseret.mydeseret.repository.UserRepository;
 import com.mydeseret.mydeseret.specification.ItemSpecification;
 
@@ -26,10 +27,21 @@ import org.springframework.cache.annotation.CacheEvict;
 @Service
 public class ItemService {
 
-    @Autowired private ItemRepository itemRepository;
-    @Autowired private CategoryRepository categoryRepository;
-    @Autowired private UserRepository userRepository;
-    @Autowired private ItemMapper itemMapper;
+    @Autowired
+    private ItemRepository itemRepository;
+    @Autowired
+    private CategoryRepository categoryRepository;
+    @Autowired
+    private UserRepository userRepository;
+    @Autowired
+    private ItemMapper itemMapper;
+
+    @Autowired
+    private SaleRepository saleRepository;
+    @Autowired
+    private com.mydeseret.mydeseret.repository.PurchaseOrderRepository purchaseOrderRepository;
+    @Autowired
+    private com.mydeseret.mydeseret.repository.BluePrintRepository bluePrintRepository;
 
     private User getAuthenticatedUser() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -38,19 +50,20 @@ public class ItemService {
     }
 
     // CLEAR CACHE ON WRITE
-    // When create or update an item is implemented, the old list is stale. Delete it.
+    // When create or update an item is implemented, the old list is stale. Delete
+    // it.
     @Transactional
     @CacheEvict(value = "items", allEntries = true)
     public ItemResponseDto createItem(ItemRequestDto request) {
-               
+
         Item item = itemMapper.toEntity(request);
 
         if (request.getCategoryId() != null) {
-                Category category = categoryRepository.findById(request.getCategoryId())
-                        .orElseThrow(() -> new RuntimeException("Category not found"));
-                
-                item.setCategory(category);
-            }
+            Category category = categoryRepository.findById(request.getCategoryId())
+                    .orElseThrow(() -> new RuntimeException("Category not found"));
+
+            item.setCategory(category);
+        }
 
         if (itemRepository.findBySku(request.getSku()).isPresent()) {
             throw new RuntimeException("Item with this SKU already exists in your inventory.");
@@ -61,47 +74,48 @@ public class ItemService {
     }
 
     // public List<ItemResponseDto> getAllItems() {
-    //     return itemRepository.findAll()
-    //             .stream()
-    //             .map(itemMapper::toResponseDto)
-    //             .collect(Collectors.toList());
+    // return itemRepository.findAll()
+    // .stream()
+    // .map(itemMapper::toResponseDto)
+    // .collect(Collectors.toList());
     // }
 
     // Key structure: "items::page_0_size_20_sort_id"
-    // @Cacheable(value = "items", key = "#pageable.pageNumber + '_' + #pageable.pageSize + '_' + #pageable.sort")
+    // @Cacheable(value = "items", key = "#pageable.pageNumber + '_' +
+    // #pageable.pageSize + '_' + #pageable.sort")
     // public Page<ItemResponseDto> getAllItems(Pageable pageable) {
-    //     return itemRepository.findAll(pageable)
-    //         .map(itemMapper::toResponseDto);
+    // return itemRepository.findAll(pageable)
+    // .map(itemMapper::toResponseDto);
     // }
 
     // @Transactional
     // public ItemResponseDto updateItem(Long id, ItemRequestDto request) {
-    //     Item item = itemRepository.findById(id)
-    //             .orElseThrow(() -> new RuntimeException("Item not found"));
+    // Item item = itemRepository.findById(id)
+    // .orElseThrow(() -> new RuntimeException("Item not found"));
 
-    //     item.setName(request.getName());
-    //     item.setDescription(request.getDescription());
-    //     item.setUnitOfMeasure(request.getUnitOfMeasure());
-    //     item.setCostPrice(request.getCostPrice());
-    //     item.setSellingPrice(request.getSellingPrice());
-    //     item.setReorderPoint(request.getReorderPoint());
+    // item.setName(request.getName());
+    // item.setDescription(request.getDescription());
+    // item.setUnitOfMeasure(request.getUnitOfMeasure());
+    // item.setCostPrice(request.getCostPrice());
+    // item.setSellingPrice(request.getSellingPrice());
+    // item.setReorderPoint(request.getReorderPoint());
 
-    //     // If category changed
-    //     if (request.getCategoryId() != null) {
-    //          Category category = categoryRepository.findById(request.getCategoryId())
-    //                 .orElseThrow(() -> new RuntimeException("Category not found"));
-    //          item.setCategory(category);
-    //     }
+    // // If category changed
+    // if (request.getCategoryId() != null) {
+    // Category category = categoryRepository.findById(request.getCategoryId())
+    // .orElseThrow(() -> new RuntimeException("Category not found"));
+    // item.setCategory(category);
+    // }
 
-    //     return itemMapper.toResponseDto(itemRepository.save(item));
+    // return itemMapper.toResponseDto(itemRepository.save(item));
     // }
 
     // @Transactional
     // public void deleteItem(Long id) {
-    //     if (!itemRepository.existsById(id)) {
-    //         throw new RuntimeException("Item not found");
-    //     }
-    //     itemRepository.deleteById(id);
+    // if (!itemRepository.existsById(id)) {
+    // throw new RuntimeException("Item not found");
+    // }
+    // itemRepository.deleteById(id);
     // }
 
     @Transactional
@@ -109,17 +123,23 @@ public class ItemService {
         Item item = itemRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Item not found"));
 
-        if (request.getName() != null) item.setName(request.getName());
-        if (request.getDescription() != null) item.setDescription(request.getDescription());
-        if (request.getUnitOfMeasure() != null) item.setUnitOfMeasure(request.getUnitOfMeasure());
-        if (request.getCostPrice() != null) item.setCostPrice(request.getCostPrice());
-        if (request.getSellingPrice() != null) item.setSellingPrice(request.getSellingPrice());
-        if (request.getReorderPoint() > 0) item.setReorderPoint(request.getReorderPoint());
+        if (request.getName() != null)
+            item.setName(request.getName());
+        if (request.getDescription() != null)
+            item.setDescription(request.getDescription());
+        if (request.getUnitOfMeasure() != null)
+            item.setUnitOfMeasure(request.getUnitOfMeasure());
+        if (request.getCostPrice() != null)
+            item.setCostPrice(request.getCostPrice());
+        if (request.getSellingPrice() != null)
+            item.setSellingPrice(request.getSellingPrice());
+        if (request.getReorderPoint() > 0)
+            item.setReorderPoint(request.getReorderPoint());
 
         if (request.getCategoryId() != null) {
-             Category category = categoryRepository.findById(request.getCategoryId())
+            Category category = categoryRepository.findById(request.getCategoryId())
                     .orElseThrow(() -> new RuntimeException("Category not found"));
-             item.setCategory(category);
+            item.setCategory(category);
         }
 
         return itemMapper.toResponseDto(itemRepository.save(item));
@@ -129,22 +149,35 @@ public class ItemService {
     public void deleteItem(Long id) {
         Item item = itemRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Item not found"));
-        
+
         // It needs to first Check if it's safe to deactivate.
         if (item.getQuantityOnHand() > 0) {
             throw new RuntimeException("Cannot delete Item with existing stock. Please adjust stock to 0 first.");
         }
-        
-        // Soft Delete
-        item.setActive(false); 
-        itemRepository.save(item);
+
+        // Check for dependencies
+        boolean isLinked = saleRepository.existsByItems_Item_ItemId(id) ||
+                purchaseOrderRepository.existsByItems_Item_ItemId(id) ||
+                bluePrintRepository.existsByOutputItem_ItemId(id) ||
+                bluePrintRepository.existsByComponents_InputItem_ItemId(id);
+
+        if (isLinked) {
+            
+            item.setActive(false);
+            itemRepository.save(item);
+            System.out.println("Item " + id + " was SOFT DELETED due to existing links.");
+        } else {
+            
+            itemRepository.delete(item);
+            System.out.println("Item " + id + " was HARD DELETED (No links found).");
+        }
     }
 
-    // Key structure: "items::page_0_size_20_sort_id"
-    @Cacheable(value = "items", key = "#pageable.pageNumber + '_' + #pageable.pageSize + '_' + #pageable.sort")    
-    public Page<ItemResponseDto> getAllItems(String search, BigDecimal minPrice, BigDecimal maxPrice, Long categoryId, Pageable pageable) {
-        
-        // Combine filters
+    // Key structure: "items::page_0_size_20_sort_id_search_apple_min_10..."
+    @Cacheable(value = "items", key = "#pageable.pageNumber + '_' + #pageable.pageSize + '_' + #pageable.sort + '_' + (#search ?: 'ALL') + '_' + (#minPrice ?: '0') + '_' + (#maxPrice ?: 'MAX') + '_' + (#categoryId ?: 'ALL')")
+    public Page<ItemResponseDto> getAllItems(String search, BigDecimal minPrice, BigDecimal maxPrice, Long categoryId,
+            Pageable pageable) {
+
         Specification<Item> spec = Specification.where(ItemSpecification.isActive())
                 .and(ItemSpecification.hasSearchText(search))
                 .and(ItemSpecification.hasPriceRange(minPrice, maxPrice))
@@ -158,7 +191,7 @@ public class ItemService {
     public void updateItemImage(Long itemId, String imageKey) {
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new RuntimeException("Item not found"));
-        
+
         item.setImageKey(imageKey);
         itemRepository.save(item);
     }

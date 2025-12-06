@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 public class NotificationService {
 
     @Autowired private NotificationRepository notificationRepository;
-    @Autowired private SimpMessagingTemplate messagingTemplate; // <--- The WebSocket pusher
+    @Autowired private SimpMessagingTemplate messagingTemplate;
 
     @Transactional
     public void sendNotification(User recipient, String message, String link) {

@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/customers")
+@io.swagger.v3.oas.annotations.tags.Tag(name = "Customers", description = "Manage customer profiles")
 public class CustomerController {
 
     @Autowired
@@ -32,7 +33,8 @@ public class CustomerController {
 
     @PutMapping("/{id}")
     @PreAuthorize("hasAuthority('CUSTOMER_UPDATE')")
-    public ResponseEntity<CustomerResponseDto> updateCustomer(@PathVariable Long id, @Valid @RequestBody CustomerRequestDto request) {
+    public ResponseEntity<CustomerResponseDto> updateCustomer(@PathVariable Long id,
+            @Valid @RequestBody CustomerRequestDto request) {
         return ResponseEntity.ok(customerService.updateCustomer(id, request));
     }
 
