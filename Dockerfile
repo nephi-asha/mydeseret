@@ -1,12 +1,23 @@
-FROM eclipse-temurin:25-jdk-alpine
+FROM maven:3.9-eclipse-temurin-17-alpine AS build
+WORKDIR /app
 
-VOLUME /tmp
+COPY mvnw .
+COPY .mvn .mvn
+COPY pom.xml .
 
-# Before i forget. Always run 'mvn clean package' first before this line under runs
-COPY app.jar app.jar
+RUN ./mvnw dependency:go-offline -B
 
-# Expose the port your app runs on
+COPY src src
+RUN ./mvnw package -DskipTests
+
+FROM eclipse-temurin:17-jre-alpine
+WORKDIR /app
+
+RUN addgroup -S spring && adduser -S spring -G spring
+USER spring:spring
+
+COPY --from=build /app/target/*.jar app.jar
+
 EXPOSE 8080
 
-# Run the application
-ENTRYPOINT ["java", "-jar", "/app.jar"]
+ENTRYPOINT ["java", "-jar", "app.jar"]
